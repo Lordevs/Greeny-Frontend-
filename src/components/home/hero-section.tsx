@@ -27,7 +27,7 @@ export default function HeroSection() {
         <Button
           variant="destructive"
           size="lg"
-          className="animate-fade-in rounded-full w-60 h-12 text-lg"
+          className="animate-fade-in rounded-full w-60 h-12 text-lg font-bold"
           style={{ animationDelay: "0.2s" }}>
           Get Started Free
         </Button>
