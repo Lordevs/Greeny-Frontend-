@@ -15,7 +15,7 @@ export default function Home() {
       <WorkflowSection />
       <SecuritySection />
       <TemplatesSection />
-      {/* <CTASection /> */}
+      <CTASection />
     </main>
   );
 }
