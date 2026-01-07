@@ -1,29 +1,30 @@
-import { Building2, Wallet, Megaphone, Beaker } from "lucide-react";
+import Image from "next/image";
+import { Card, CardContent } from "@/components/ui/card";
 
 const teamTypes = [
   {
-    icon: Building2,
+    icon: "/logos/teams/building.svg",
     title: "Operations",
     description:
-      "Perfect for teams of 5 or more looking for efficiency, making collaboration a breeze for operations teams.",
+      "Convert billions of rows of raw data into insights. Analyze usage patterns to optimize workforce scheduling.",
   },
   {
-    icon: Wallet,
+    icon: "/logos/teams/dollar.svg",
     title: "Finance",
     description:
-      "Enable your finance team to analyze financial data instantly, share reports, and make data-driven decisions.",
+      "Identify spending patterns and cost-saving opportunities. Generate comprehensive budget forecasts.",
   },
   {
-    icon: Megaphone,
+    icon: "/logos/common/announcement.svg",
     title: "Marketing",
     description:
-      "Track campaigns, dive into performance metrics, and collaborate on marketing strategies.",
+      "Transform survey data into actionable marketing insights. Optimize campaigns for maximum ROI.",
   },
   {
-    icon: Beaker,
+    icon: "/logos/teams/test-beaker.svg",
     title: "Research",
     description:
-      "Collaborate on research with powerful AI tools for analysis, paving paths for new discoveries.",
+      "Create interactive visualizations for pattern discovery. Automate identification and handling of missing data.",
   },
 ];
 
@@ -31,31 +32,40 @@ export default function TeamsTypesSection() {
   return (
     <section className="bg-secondary py-20 px-6">
       <div className="max-w-4xl mx-auto text-center">
-        <h2 className="text-4xl md:text-5xl font-bold text-destructive mb-4">
+        <h2 className="text-4xl md:text-6xl font-bold text-primary-foreground mb-4">
           Built for All Types of Teams
         </h2>
-        <p className="text-xl text-destructive/70 mb-16 max-w-2xl mx-auto">
-          Whether it's finance, marketing, or research teams – we've got you
-          covered.
+        <p className="text-xl text-primary-foreground/90 mb-16 max-w-3xl mx-auto">
+          From operations to research, Grees is designed to empower every
+          department.
         </p>
 
         <div className="space-y-6">
           {teamTypes.map((team, index) => (
-            <div
+            <Card
               key={index}
-              className="bg-white p-8 rounded-2xl shadow-lg border border-primary/5 flex items-start gap-6 text-left transition-all hover:shadow-xl hover:-translate-y-1">
-              <div className="w-16 h-16 rounded-2xl bg-secondary shrink-0 flex items-center justify-center">
-                <team.icon className="w-8 h-8 text-primary-foreground" />
-              </div>
-              <div>
-                <h3 className="text-2xl font-bold text-destructive mb-2">
-                  {team.title}
-                </h3>
-                <p className="text-lg text-destructive/80 leading-relaxed">
-                  {team.description}
-                </p>
-              </div>
-            </div>
+              className="bg-primary-foreground border-none h-[130px] p-0 py-0 gap-0 rounded-2xl shadow-xl transition-all hover:scale-[1.01]">
+              <CardContent className="p-8 flex items-start gap-8 text-left">
+                <div className="w-16 h-16 rounded-xl bg-destructive shrink-0 flex items-center justify-center shadow-inner">
+                  <div className="relative w-8 h-8">
+                    <Image
+                      src={team.icon}
+                      alt={team.title}
+                      fill
+                      className="object-contain"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-destructive mb-1">
+                    {team.title}
+                  </h3>
+                  <p className="text-destructive/70 text-base leading-relaxed">
+                    {team.description}
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
           ))}
         </div>
       </div>
