@@ -20,7 +20,7 @@ export default function Teams() {
         buttonText="Start a Team"
       />
       <TeamsFeaturesSection />
-      {/* <TeamsProductivitySection /> */}
+      <TeamsProductivitySection />
       {/* <TeamsTypesSection /> */}
       {/* <CTASection
         title="Ready to Get Started?"

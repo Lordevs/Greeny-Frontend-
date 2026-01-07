@@ -1,51 +1,74 @@
-import { Workflow, UserCog, Users, BarChart3 } from "lucide-react";
+import Image from "next/image";
+import { Sliders, Folder } from "lucide-react";
 
 const productivityItems = [
   {
-    icon: Workflow,
-    title: "Easy Workflows",
-    description: "Streamlined processes for efficient team collaboration",
+    icon: "/logos/flash.svg",
+    title: "Live Workflows",
+    description:
+      "Collaborate live on deep analysis or creating automations for the team's repetitive tasks.",
+    isSvg: true,
   },
   {
-    icon: UserCog,
+    icon: Sliders,
     title: "User Management",
-    description: "Full control over team access and permissions",
+    description:
+      "Assign specific roles and permissions to other teammates, like an Admin to manage billing.",
+    isSvg: false,
   },
   {
-    icon: Users,
-    title: "Team Views",
-    description: "Shared dashboards for team-wide visibility",
+    icon: Folder,
+    title: "Team Files",
+    description:
+      "Keep files forever in a single place and access a shared space with your team to collaborate on projects.",
+    isSvg: false,
   },
   {
-    icon: BarChart3,
-    title: "Usage Dashboards",
-    description: "Track team activity and engagement metrics",
+    icon: "/logos/graph.svg",
+    title: "Usage Dashboard",
+    description:
+      "Track how efficiently your team utilizes Nexus. Get insights into workspace activity and popular workflows.",
+    isSvg: true,
   },
 ];
 
 export default function TeamsProductivitySection() {
   return (
-    <section className="bg-secondary px-6 py-20">
-      <div className="max-w-6xl mx-auto text-center">
-        <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+    <section className="px-6 py-24">
+      <div className="max-w-7xl mx-auto text-center">
+        <h2 className="text-4xl md:text-5xl font-bold text-primary-foreground mb-6">
           Level Up Your Team's Productivity
         </h2>
-        <p className="text-xl text-white/90 mb-16 max-w-3xl mx-auto leading-relaxed">
-          Powerful features designed to help teams work smarter and move faster.
+        <p className="text-xl text-primary-foreground/90 mb-16 max-w-3xl mx-auto">
+          Work together live, organize team tasks, and share insights across the
+          team.
         </p>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-12 text-left">
           {productivityItems.map((item, index) => (
-            <div key={index} className="flex flex-col items-center text-center">
-              <div className="w-20 h-20 rounded-full bg-white flex items-center justify-center mb-6 shadow-xl">
-                <item.icon className="w-10 h-10 text-destructive" />
+            <div key={index} className="flex items-start gap-5">
+              <div className="w-12 h-12 shrink-0 rounded-xl bg-primary-foreground flex items-center justify-center shadow-lg">
+                {item.isSvg ? (
+                  <div className="relative w-6 h-6">
+                    <Image
+                      src={item.icon as string}
+                      alt={item.title}
+                      fill
+                      className="object-contain"
+                    />
+                  </div>
+                ) : (
+                  <item.icon className="w-6 h-6 text-primary-foreground" />
+                )}
               </div>
-              <h4 className="text-xl font-bold text-white mb-2">
-                {item.title}
-              </h4>
-              <p className="text-white/80 text-sm leading-relaxed">
-                {item.description}
-              </p>
+              <div>
+                <h4 className="text-2xl font-bold text-primary-foreground mb-2">
+                  {item.title}
+                </h4>
+                <p className="text-primary-foreground/80 text-lg leading-relaxed">
+                  {item.description}
+                </p>
+              </div>
             </div>
           ))}
         </div>
