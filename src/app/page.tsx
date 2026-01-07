@@ -12,8 +12,8 @@ export default function Home() {
       <HeroSection />
       <FeaturesSection />
       <IntegrationsSection />
-      {/* <WorkflowSection /> */}
-      {/* <SecuritySection /> */}
+      <WorkflowSection />
+      <SecuritySection />
       {/* <TemplatesSection /> */}
       {/* <CTASection /> */}
     </main>
