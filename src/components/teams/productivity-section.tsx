@@ -3,28 +3,28 @@ import { Sliders, Folder } from "lucide-react";
 
 const productivityItems = [
   {
-    icon: "/logos/flash.svg",
+    icon: "/logos/teams/flash.svg",
     title: "Live Workflows",
     description:
       "Collaborate live on deep analysis or creating automations for the team's repetitive tasks.",
     isSvg: true,
   },
   {
-    icon: Sliders,
+    icon: "/logos/teams/dashboard.svg",
     title: "User Management",
     description:
       "Assign specific roles and permissions to other teammates, like an Admin to manage billing.",
     isSvg: false,
   },
   {
-    icon: Folder,
+    icon: "/logos/teams/folder.svg",
     title: "Team Files",
     description:
       "Keep files forever in a single place and access a shared space with your team to collaborate on projects.",
     isSvg: false,
   },
   {
-    icon: "/logos/graph.svg",
+    icon: "/logos/teams/graph.svg",
     title: "Usage Dashboard",
     description:
       "Track how efficiently your team utilizes Nexus. Get insights into workspace activity and popular workflows.",
@@ -44,22 +44,18 @@ export default function TeamsProductivitySection() {
           team.
         </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-12 text-left">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-20 gap-y-12 text-left">
           {productivityItems.map((item, index) => (
             <div key={index} className="flex items-start gap-5">
               <div className="w-12 h-12 shrink-0 rounded-xl bg-primary-foreground flex items-center justify-center shadow-lg">
-                {item.isSvg ? (
-                  <div className="relative w-6 h-6">
-                    <Image
-                      src={item.icon as string}
-                      alt={item.title}
-                      fill
-                      className="object-contain"
-                    />
-                  </div>
-                ) : (
-                  <item.icon className="w-6 h-6 text-primary-foreground" />
-                )}
+                <div className="relative w-6 h-6">
+                  <Image
+                    src={item.icon as string}
+                    alt={item.title}
+                    fill
+                    className="object-contain"
+                  />
+                </div>
               </div>
               <div>
                 <h4 className="text-2xl font-bold text-primary-foreground mb-2">

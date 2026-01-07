@@ -29,7 +29,7 @@ const teamTypes = [
 
 export default function TeamsTypesSection() {
   return (
-    <section className="bg-primary-foreground py-20 px-6">
+    <section className="bg-secondary py-20 px-6">
       <div className="max-w-4xl mx-auto text-center">
         <h2 className="text-4xl md:text-5xl font-bold text-destructive mb-4">
           Built for All Types of Teams
