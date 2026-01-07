@@ -1,9 +1,9 @@
 import Image from "next/image";
 
 const securityItems = [
-  { icon: "/logos/shield.svg", name: "SOC 2 Type II" },
-  { icon: "/logos/lock.svg", name: "GDPR Compliant" },
-  { icon: "/logos/award.svg", name: "Top-Rated Security" },
+  { icon: "/logos/home/shield.svg", name: "SOC 2 Type II" },
+  { icon: "/logos/home/lock.svg", name: "GDPR Compliant" },
+  { icon: "/logos/home/award.svg", name: "Top-Rated Security" },
 ];
 
 export default function SecuritySection() {

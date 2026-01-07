@@ -2,11 +2,11 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 
 const integrations = [
-  { icon: "/logos/google.svg", name: "Google" },
-  { icon: "/logos/microsoft.svg", name: "Microsoft" },
-  { icon: "/logos/slack.svg", name: "Slack" },
-  { icon: "/logos/spotify.svg", name: "Spotify" },
-  { icon: "/logos/adonis.svg", name: "Adonis" },
+  { icon: "/logos/common/google.svg", name: "Google" },
+  { icon: "/logos/common/microsoft.svg", name: "Microsoft" },
+  { icon: "/logos/common/slack.svg", name: "Slack" },
+  { icon: "/logos/common/spotify.svg", name: "Spotify" },
+  { icon: "/logos/common/adonis.svg", name: "Adonis" },
 ];
 
 interface HeroSectionProps {

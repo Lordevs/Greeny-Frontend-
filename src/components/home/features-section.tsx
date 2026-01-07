@@ -25,7 +25,7 @@ export default function FeaturesSection() {
             <CardHeader className="">
               <div className="mt-10 flex w-14 items-center justify-center rounded-xl">
                 <Image
-                  src="/logos/flash.svg"
+                  src="/logos/home/flash.svg"
                   alt="Flash"
                   width={32}
                   height={32}
@@ -57,7 +57,7 @@ export default function FeaturesSection() {
             <CardHeader className="pb-2">
               <div className="mt-10 flex w-14 items-center justify-center rounded-xl">
                 <Image
-                  src="/logos/cloud.svg"
+                  src="/logos/home/cloud.svg"
                   alt="Cloud"
                   width={32}
                   height={32}
@@ -100,7 +100,7 @@ export default function FeaturesSection() {
             <CardHeader className="pb-2">
               <div className="mt-10 flex w-14 items-center justify-center rounded-xl">
                 <Image
-                  src="/logos/pie-chart.svg"
+                  src="/logos/home/pie-chart.svg"
                   alt="Pie Chart"
                   width={32}
                   height={32}

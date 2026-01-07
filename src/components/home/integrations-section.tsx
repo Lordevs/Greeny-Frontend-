@@ -2,13 +2,13 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 
 const integrations = [
-  { icon: "/logos/drive.svg", name: "Google Drive" },
-  { icon: "/logos/dropbox.svg", name: "Dropbox" },
-  { icon: "/logos/salesforce.svg", name: "Salesforce" },
-  { icon: "/logos/gitlab.svg", name: "Gitlab" },
-  { icon: "/logos/sheets.svg", name: "Google Sheets" },
-  { icon: "/logos/github.svg", name: "Github" },
-  { icon: "/logos/aws.svg", name: "AWS" },
+  { icon: "/logos/home/drive.svg", name: "Google Drive" },
+  { icon: "/logos/home/dropbox.svg", name: "Dropbox" },
+  { icon: "/logos/home/salesforce.svg", name: "Salesforce" },
+  { icon: "/logos/home/gitlab.svg", name: "Gitlab" },
+  { icon: "/logos/home/sheets.svg", name: "Google Sheets" },
+  { icon: "/logos/home/github.svg", name: "Github" },
+  { icon: "/logos/home/aws.svg", name: "AWS" },
 ];
 
 export default function IntegrationsSection() {

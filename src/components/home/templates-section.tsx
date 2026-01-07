@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 
 const templates = [
   {
-    logo: "/logos/graph.svg",
+    logo: "/logos/home/graph.svg",
     title: "Sales Analytics",
     description:
       "Track revenue, conversions, and sales performance with comprehensive KPI dashboards.",
@@ -12,7 +12,7 @@ const templates = [
     action: "Use Template",
   },
   {
-    logo: "/logos/announcement.svg",
+    logo: "/logos/home/announcement.svg",
     title: "Marketing Dashboard",
     description:
       "Monitor campaigns, engagement metrics, and ROI across all marketing channels.",
@@ -20,7 +20,7 @@ const templates = [
     action: "Use Template",
   },
   {
-    logo: "/logos/users.svg",
+    logo: "/logos/home/users.svg",
     title: "HR Analytics",
     description:
       "Analyze employee performance, retention rates, and workforce productivity metrics.",
@@ -28,7 +28,7 @@ const templates = [
     action: "Use Template",
   },
   {
-    logo: "/logos/database.svg",
+    logo: "/logos/home/database.svg",
     title: "Financial Reports",
     description:
       "Track expenses, revenue, cash flow, and financial health with automated reporting.",
@@ -36,7 +36,7 @@ const templates = [
     action: "Use Template",
   },
   {
-    logo: "/logos/cart.svg",
+    logo: "/logos/home/cart.svg",
     title: "E-commerce Insights",
     description:
       "Monitor online sales, customer behavior, inventory, and conversion funnels.",
@@ -44,7 +44,7 @@ const templates = [
     action: "Use Template",
   },
   {
-    logo: "/logos/settings.svg",
+    logo: "/logos/home/settings.svg",
     title: "Operations Dashboard",
     description:
       "Streamline operations with real-time monitoring of processes and efficiency metrics.",

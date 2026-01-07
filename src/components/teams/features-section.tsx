@@ -3,19 +3,19 @@ import { Card, CardContent } from "@/components/ui/card";
 
 const features = [
   {
-    icon: "/logos/people.svg",
+    icon: "/logos/teams/people.svg",
     title: "Shared Workspace",
     description:
       "Explore new ideas, iterate on existing ones, and share your work across the team.",
   },
   {
-    icon: "/logos/user.svg",
+    icon: "/logos/teams/user.svg",
     title: "Team Management",
     description:
       "Assign roles, manage billing, and track usage in a single, simple place.",
   },
   {
-    icon: "/logos/shield-white.svg",
+    icon: "/logos/teams/shield.svg",
     title: "Secure, Reliable Platform",
     description:
       "Keep your data protected with top-grade security measures and compliance.",
