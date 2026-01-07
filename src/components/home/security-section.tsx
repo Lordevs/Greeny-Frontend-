@@ -1,35 +1,40 @@
-import { Shield, Lock, CheckCircle } from "lucide-react";
+import Image from "next/image";
+
+const securityItems = [
+  { icon: "/logos/shield.svg", name: "SOC 2 Type II" },
+  { icon: "/logos/lock.svg", name: "GDPR Compliant" },
+  { icon: "/logos/award.svg", name: "Top-Rated Security" },
+];
 
 export default function SecuritySection() {
   return (
-    <section className="section-orange py-16 px-6">
-      <div className="max-w-5xl mx-auto text-center text-primary-foreground">
-        <h2 className="text-3xl font-bold mb-3">
+    <section className="px-6 py-15">
+      <div className="max-w-7xl mx-auto text-center">
+        <h2 className="text-4xl md:text-5xl font-bold text-primary-foreground mb-6">
           Your Data's Security is Our Priority
         </h2>
-        <p className="text-primary-foreground/80 mb-10 max-w-xl mx-auto">
-          Enterprise-grade security protecting your valuable data at every step
+        <p className="text-xl text-primary-foreground/80 mb-16 mx-auto">
+          Grees is compliant with industry-leading standards to ensure your data
+          remains safe and secure.
         </p>
 
-        <div className="flex flex-wrap justify-center gap-8">
-          <div className="flex items-center gap-3">
-            <div className="icon-circle-white bg-primary-foreground/20 p-2 rounded-full">
-              <Shield className="w-5 h-5" />
+        <div className="max-w-3xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-1 justify-items-center">
+          {securityItems.map((item, index) => (
+            <div key={index} className="flex flex-col items-center gap-6">
+              <div className="w-20 h-20 border-popover border-2 rounded-full bg-primary-foreground flex items-center justify-center p-6 shadow-xl">
+                <Image
+                  src={item.icon}
+                  alt={item.name}
+                  width={40}
+                  height={40}
+                  className="w-full h-full object-contain"
+                />
+              </div>
+              <span className="text-lg text-primary-foreground uppercase tracking-tight">
+                {item.name}
+              </span>
             </div>
-            <span className="font-medium">256-bit Encryption</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="icon-circle-white bg-primary-foreground/20 p-2 rounded-full">
-              <Lock className="w-5 h-5" />
-            </div>
-            <span className="font-medium">SOC 2 Compliant</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="icon-circle-white bg-primary-foreground/20 p-2 rounded-full">
-              <CheckCircle className="w-5 h-5" />
-            </div>
-            <span className="font-medium">Regular Audits</span>
-          </div>
+          ))}
         </div>
       </div>
     </section>
