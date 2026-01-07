@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { ROUTES } from "@/constants/routes";
 
-const Navbar = () => {
+export default function Navbar() {
   const pathname = usePathname();
 
   const isActive = (path: string) => pathname === path;
@@ -18,7 +18,7 @@ const Navbar = () => {
       <Link
         href={ROUTES.APP.HOME}
         className="text-2xl font-bold italic text-primary-foreground">
-        <Image src="/logo.png" alt="Logo" width={100} height={100} />
+        <Image src="/logo.svg" alt="Logo" width={100} height={100} />
       </Link>
 
       <div className="flex items-center gap-8">
@@ -45,6 +45,4 @@ const Navbar = () => {
       </Button>
     </nav>
   );
-};
-
-export default Navbar;
+}

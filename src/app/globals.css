@@ -18,7 +18,7 @@
   --muted-foreground: oklch(0.4500 0.0300 45);
   --accent: oklch(0.7742 0.1598 58.8700);
   --accent-foreground: oklch(0.2500 0.0300 45);
-  --destructive: oklch(0.6200 0.2500 27);
+  --destructive: oklch(0.6803 0.214372 39.8015);
   --destructive-foreground: oklch(1 0 0);
   --border: oklch(0.7000 0.0800 55);
   --input: oklch(0.7000 0.0800 55);
@@ -36,8 +36,8 @@
   --sidebar-accent-foreground: oklch(0.2500 0.0300 45);
   --sidebar-border: oklch(0.7000 0.0800 55);
   --sidebar-ring: oklch(0.7336 0.1840 52.7900);
-  --font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
-  --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  --font-sans: var(--font-inter);
+  --font-serif: var(--font-inter);
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   --radius: 0.625rem;
   --shadow-x: 0;
@@ -91,8 +91,8 @@
   --sidebar-accent-foreground: oklch(0.9700 0.0300 85);
   --sidebar-border: oklch(1 0 0);
   --sidebar-ring: oklch(0.8800 0.1600 85);
-  --font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
-  --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  --font-sans: var(--font-inter);
+   --font-serif: var(--font-inter); 
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   --radius: 0.625rem;
   --shadow-x: 0;
@@ -145,7 +145,7 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
 
-  --font-sans: var(--font-sans);
+  --font-sans: var(--font-inter);
   --font-mono: var(--font-mono);
   --font-serif: var(--font-serif);
 
