@@ -25,7 +25,11 @@ export default function Home() {
       <WorkflowSection />
       <SecuritySection />
       <TemplatesSection />
-      <CTASection />
+      <CTASection
+        title="Ready to Get Started?"
+        description="Join thousands of users and start making data-driven decisions today. No credit card required."
+        buttonText="Start Your Free Trial"
+      />
     </main>
   );
 }
