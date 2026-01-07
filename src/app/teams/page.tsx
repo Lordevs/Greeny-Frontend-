@@ -20,13 +20,13 @@ export default function Teams() {
         buttonText="Start a Team"
       />
       <TeamsFeaturesSection />
-      <TeamsProductivitySection />
-      <TeamsTypesSection />
-      <CTASection
+      {/* <TeamsProductivitySection /> */}
+      {/* <TeamsTypesSection /> */}
+      {/* <CTASection
         title="Ready to Get Started?"
         description="Join thousands of teams who are making data-driven decisions every day. No credit card required."
         buttonText="Start Your Free Trial"
-      />
+      /> */}
     </main>
   );
 }
