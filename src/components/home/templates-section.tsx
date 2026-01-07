@@ -12,7 +12,7 @@ const templates = [
     action: "Use Template",
   },
   {
-    logo: "/logos/home/announcement.svg",
+    logo: "/logos/common/announcement.svg",
     title: "Marketing Dashboard",
     description:
       "Monitor campaigns, engagement metrics, and ROI across all marketing channels.",
