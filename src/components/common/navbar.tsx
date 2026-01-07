@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -10,11 +11,27 @@ import { ROUTES } from "@/constants/routes";
 
 export default function Navbar() {
   const pathname = usePathname();
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const isActive = (path: string) => pathname === path;
 
   return (
-    <nav className="flex w-full bg-secondary items-center justify-between px-6 py-4">
+    <nav
+      className={cn(
+        "fixed top-0 left-0 right-0 z-50 flex w-full items-center justify-between px-6 py-4 transition-all duration-300",
+        scrolled
+          ? "bg-destructive border-b border-primary-foreground/10"
+          : "bg-secondary"
+      )}>
       <Link
         href={ROUTES.APP.HOME}
         className="text-2xl font-bold italic text-primary-foreground">
@@ -40,7 +57,10 @@ export default function Navbar() {
       <Button
         variant="outline"
         size="default"
-        className="bg-secondary rounded-full border-primary-foreground text-primary-foreground">
+        className={cn(
+          "rounded-full border-primary-foreground text-primary-foreground transition-all duration-300",
+          scrolled ? "bg-destructive" : "bg-secondary"
+        )}>
         My Account
       </Button>
     </nav>
