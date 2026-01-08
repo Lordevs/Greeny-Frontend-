@@ -12,5 +12,7 @@ export const ROUTES = {
   },
   CHAT: {
     ROOT: "/chats",
+    PLAN: "/chats/plan",
+    LOGOUT: "/chats/logout",
   },
 };

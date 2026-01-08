@@ -45,18 +45,24 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
   const router = useRouter();
   const [mode, setMode] = useState(initialMode);
   const [message, setMessage] = useState("");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [lastUserMessage, setLastUserMessage] = useState<string | undefined>();
+  const [lastUserFile, setLastUserFile] = useState<File | null>(null);
 
   const handleSendMessage = () => {
-    if (!message.trim()) return;
+    if (!message.trim() && !selectedFile) return;
 
-    // If we are in welcome mode, simulate starting a new chat and redirect
+    setLastUserMessage(message);
+    setLastUserFile(selectedFile);
+    const currentMessage = message;
+    setMessage("");
+    setSelectedFile(null);
+
+    // If we are in welcome mode, switch to response mode
     if (mode === "welcome") {
-      const newChatId = Math.random().toString(36).substring(7);
-      router.push(`/chats/${newChatId}`);
-      // In a real app, you'd save the message and process it here
+      setMode("response");
     } else {
-      console.log("Follow up:", message);
-      setMessage("");
+      console.log("Follow up:", currentMessage);
     }
   };
 
@@ -82,12 +88,12 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
       <div
         className={cn(
           "flex-1 overflow-y-auto scroll-smooth",
-          mode === "welcome" && "flex items-center justify-center"
+          mode === "welcome" && "flex items-center justify-center p-4 md:p-6"
         )}>
         <div
           className={cn(
-            "px-6 w-full",
-            mode === "welcome" ? "py-0" : "py-12 md:py-20"
+            "w-full",
+            mode === "welcome" ? "py-0" : "py-8 md:py-20"
           )}>
           {mode === "welcome" ? (
             <div className="animate-in fade-in slide-in-from-bottom-8 duration-700 w-full max-w-4xl mx-auto">
@@ -95,10 +101,14 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
                 message={message}
                 setMessage={setMessage}
                 onSend={handleSendMessage}
+                selectedFile={selectedFile}
+                onFileSelect={setSelectedFile}
               />
             </div>
           ) : (
             <ChatResponse
+              userMessage={lastUserMessage}
+              userFile={lastUserFile}
               title="Saudi Arabia CPI & Inflation Analysis (2000-2024)"
               description="I've analyzed Saudi Arabia's Consumer Price Index (CPI) and inflation rates from 2000 to 2024. Here's what the data reveals about economic trends and stability periods."
               trendData={cpiTrendData}
@@ -115,6 +125,8 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
             message={message}
             setMessage={setMessage}
             onSend={handleSendMessage}
+            selectedFile={selectedFile}
+            onFileSelect={setSelectedFile}
           />
         </div>
       )}

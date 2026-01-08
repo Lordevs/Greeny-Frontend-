@@ -1,7 +1,12 @@
 "use client";
 
 import ChatSidebar from "@/components/chats/chat-sidebar";
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import {
+  SidebarInset,
+  SidebarProvider,
+  SidebarTrigger,
+} from "@/components/ui/sidebar";
+import Image from "next/image";
 import { useRouter, useParams } from "next/navigation";
 import { ReactNode, useState, useEffect } from "react";
 
@@ -70,8 +75,17 @@ const ChatLayout = ({ children }: ChatLayoutProps) => {
         onSelectThread={handleSelectThread}
         onNewChat={handleNewChat}
       />
-      <SidebarInset className="flex flex-col flex-1 overflow-hidden">
-        {children}
+      <SidebarInset className="flex flex-col flex-1 overflow-x-hidden overflow-y-auto">
+        <header className="sticky top-0 z-10 flex h-14 shrink-0 items-center justify-between gap-2 border-b border-primary-foreground/10 bg-secondary/80 backdrop-blur-sm px-4 md:hidden">
+          <div className="flex items-center gap-2">
+            <SidebarTrigger className="text-primary-foreground" />
+            <Image src="/logo.svg" alt="" width={100} height={100} />
+          </div>
+          <div className="flex items-center gap-2">
+            {/* Can add extra mobile controls here if needed */}
+          </div>
+        </header>
+        <div className="flex-1">{children}</div>
       </SidebarInset>
     </SidebarProvider>
   );

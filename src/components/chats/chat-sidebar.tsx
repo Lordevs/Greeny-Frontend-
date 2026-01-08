@@ -1,11 +1,5 @@
-import {
-  MessageSquare,
-  Plus,
-  Search,
-  Settings,
-  LogOut,
-  UserCircle,
-} from "lucide-react";
+"use client";
+import { MessageSquare, Plus, Search, Settings, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Sidebar,
@@ -24,6 +18,9 @@ import {
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ROUTES } from "@/constants/routes";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 interface ChatThread {
   id: string;
@@ -45,6 +42,7 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
   onSelectThread,
   onNewChat,
 }) => {
+  const pathname = usePathname();
   // Group threads by date
   const today = new Date().toDateString();
   const yesterday = new Date(Date.now() - 86400000).toDateString();
@@ -132,15 +130,28 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
         <SidebarSeparator className="mb-4 bg-primary-foreground" />
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton className="hover:bg-white/10 hover:text-white transition-colors">
-              <Settings className="w-4 h-4 mr-2" />
-              <span>Account & Billing</span>
+            <SidebarMenuButton
+              asChild
+              className={cn(
+                "transition-colors",
+                pathname === ROUTES.CHAT.PLAN
+                  ? "bg-primary-foreground text-destructive hover:bg-primary-foreground/90"
+                  : "hover:bg-white/10 hover:text-white"
+              )}>
+              <Link href={ROUTES.CHAT.PLAN}>
+                <Settings className="w-4 h-4 mr-2" />
+                <span>Account & Billing</span>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton className="hover:bg-white/10 hover:text-white transition-colors">
-              <LogOut className="w-4 h-4 mr-2" />
-              <span>Log Out</span>
+            <SidebarMenuButton
+              asChild
+              className="hover:bg-white/10 hover:text-white transition-colors">
+              <Link href={ROUTES.CHAT.LOGOUT}>
+                <LogOut className="w-4 h-4 mr-2" />
+                <span>Log Out</span>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
