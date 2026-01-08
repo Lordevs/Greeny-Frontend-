@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { ChatWelcome } from "./chat-welcome";
 import { ChatResponse } from "./chat-response";
 import { ChatInputBar } from "./chat-input-bar";
+import { cn } from "@/lib/utils";
 
 const cpiTrendData = [
   { year: "2000", value: 60 },
@@ -62,15 +63,15 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
   return (
     <div className="flex flex-col h-full bg-background relative">
       {/* Header */}
-      <div className="border-b border-border p-4 bg-white/80 backdrop-blur-sm sticky top-0 z-10">
-        <div className="flex items-center justify-between max-w-7xl mx-auto">
-          <div className="flex items-center gap-3">
-            <h1 className="text-xl font-bold text-foreground tracking-tight">
+      <div className="border-b border-border p-4 bg-secondary backdrop-blur-sm sticky top-0 z-10">
+        <div>
+          <div className="flex items-center gap-1">
+            <h1 className="text-xl font-bold text-primary-foreground tracking-tight">
               AI Analysis Hub
             </h1>
             <Badge
               variant="secondary"
-              className="bg-emerald-100 text-emerald-700 hover:bg-emerald-200 border-none px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider">
+              className="bg-emerald-100 text-emerald-700 hover:bg-emerald-200 border-none px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">
               Agent Active
             </Badge>
           </div>
@@ -78,10 +79,18 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 overflow-y-auto scroll-smooth">
-        <div className="py-12 md:py-20 px-6">
+      <div
+        className={cn(
+          "flex-1 overflow-y-auto scroll-smooth",
+          mode === "welcome" && "flex items-center justify-center"
+        )}>
+        <div
+          className={cn(
+            "px-6 w-full",
+            mode === "welcome" ? "py-0" : "py-12 md:py-20"
+          )}>
           {mode === "welcome" ? (
-            <div className="animate-in fade-in slide-in-from-bottom-8 duration-700">
+            <div className="animate-in fade-in slide-in-from-bottom-8 duration-700 w-full max-w-4xl mx-auto">
               <ChatWelcome
                 message={message}
                 setMessage={setMessage}

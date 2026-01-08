@@ -2,7 +2,8 @@
 
 import ChatSidebar from "@/components/chats/chat-sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { ReactNode, useState } from "react";
+import { useRouter, useParams } from "next/navigation";
+import { ReactNode, useState, useEffect } from "react";
 
 interface ChatLayoutProps {
   children: ReactNode;
@@ -37,10 +38,28 @@ const mockThreads = [
 ];
 
 const ChatLayout = ({ children }: ChatLayoutProps) => {
-  const [activeThread, setActiveThread] = useState("1");
+  const router = useRouter();
+  const params = useParams();
+  const [activeThread, setActiveThread] = useState<string | undefined>(
+    params.id as string
+  );
+
+  useEffect(() => {
+    if (params.id) {
+      setActiveThread(params.id as string);
+    } else {
+      setActiveThread(undefined);
+    }
+  }, [params.id]);
+
+  const handleSelectThread = (id: string) => {
+    setActiveThread(id);
+    router.push(`/chats/${id}`);
+  };
 
   const handleNewChat = () => {
-    console.log("New chat");
+    setActiveThread(undefined);
+    router.push("/chats");
   };
 
   return (
@@ -48,7 +67,7 @@ const ChatLayout = ({ children }: ChatLayoutProps) => {
       <ChatSidebar
         threads={mockThreads}
         activeThreadId={activeThread}
-        onSelectThread={setActiveThread}
+        onSelectThread={handleSelectThread}
         onNewChat={handleNewChat}
       />
       <SidebarInset className="flex flex-col flex-1 overflow-hidden">

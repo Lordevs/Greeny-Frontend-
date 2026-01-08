@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { TrendingUp, AlertTriangle } from "lucide-react";
+import { TrendingUp, AlertTriangle, Bot } from "lucide-react";
 import {
   LineChart,
   Line,
@@ -29,25 +29,27 @@ export const ChatResponse: React.FC<ChatResponseProps> = ({
   indexData,
 }) => {
   return (
-    <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      {/* Response Header */}
-      <div className="flex items-start gap-4">
-        <div className="w-9 h-9 shrink-0 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-sm font-bold shadow-lg">
-          G
-        </div>
+    <div className="max-w-7xl mx-auto flex items-start gap-4 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-12">
+      {/* Bot Avatar Outside the Box */}
+      <div className="w-10 h-10 shrink-0 rounded-full bg-white flex items-center justify-center text-secondary shadow-lg mt-2 border border-white/20">
+        <Bot className="w-6 h-6" />
+      </div>
+
+      {/* Main Content Box */}
+      <div className="flex-1 bg-secondary p-8 rounded-3xl space-y-8 shadow-xl">
         <div className="flex-1">
-          <h3 className="text-2xl font-bold text-foreground mb-3 leading-tight">
+          <h3 className="text-2xl font-bold text-primary-foreground mb-3 leading-tight">
             {title}
           </h3>
-          <p className="text-muted-foreground text-lg leading-relaxed mb-8">
+          <p className="text-lg text-primary-foreground leading-relaxed mb-8">
             {description}
           </p>
 
           {/* Charts */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-            <Card className="shadow-sm border-border/50 hover:shadow-md transition-shadow">
+            <Card className="shadow-sm bg-primary-foreground border-border/50 hover:shadow-md transition-shadow">
               <CardHeader className="pb-4">
-                <CardTitle className="text-sm font-semibold text-primary/80 uppercase tracking-wider">
+                <CardTitle className="text-sm font-semibold text-destructive uppercase tracking-wider">
                   Consumer Price Index Trend
                 </CardTitle>
                 <p className="text-xs text-muted-foreground">
@@ -114,7 +116,7 @@ export const ChatResponse: React.FC<ChatResponseProps> = ({
               </CardContent>
             </Card>
 
-            <Card className="shadow-sm border-border/50 hover:shadow-md transition-shadow">
+            <Card className="shadow-sm border-border/50 bg-primary-foreground hover:shadow-md transition-shadow">
               <CardHeader className="pb-4">
                 <CardTitle className="text-sm font-semibold text-blue-600/80 uppercase tracking-wider">
                   CPI Index
@@ -172,7 +174,7 @@ export const ChatResponse: React.FC<ChatResponseProps> = ({
 
           {/* Key Findings */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card className="border-border/50 shadow-sm overflow-hidden">
+            <Card className="border-border/50 bg-primary-foreground shadow-sm overflow-hidden">
               <div className="h-1 bg-primary w-full" />
               <CardContent className="pt-5">
                 <div className="flex items-center gap-2 mb-4">
@@ -209,11 +211,11 @@ export const ChatResponse: React.FC<ChatResponseProps> = ({
               </CardContent>
             </Card>
 
-            <Card className="border-border/50 shadow-sm overflow-hidden">
-              <div className="h-1 bg-amber-500 w-full" />
+            <Card className="border-border/50 bg-primary-foreground shadow-sm overflow-hidden">
+              <div className="h-1 bg-secondary w-full" />
               <CardContent className="pt-5">
                 <div className="flex items-center gap-2 mb-4">
-                  <AlertTriangle className="w-5 h-5 text-amber-500" />
+                  <AlertTriangle className="w-5 h-5 text-secondary" />
                   <h4 className="font-bold text-foreground uppercase tracking-tight text-sm">
                     Notable Periods
                   </h4>
