@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useRef } from "react";
+import React, { useState } from "react";
 import { Send, Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { getFileIcon } from "@/lib/chat-utils";
+import { FileUploadDialog } from "./file-upload-dialog";
 
 interface ChatInputBarProps {
   message: string;
@@ -22,91 +23,99 @@ export const ChatInputBar: React.FC<ChatInputBarProps> = ({
   selectedFile,
   onFileSelect,
 }) => {
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isUploadOpen, setIsUploadOpen] = useState(false);
   const fileInfo = selectedFile ? getFileIcon(selectedFile.name) : null;
   const FileIconComponent = fileInfo?.icon;
 
   const handlePlusClick = () => {
-    fileInputRef.current?.click();
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      onFileSelect(file);
-    }
+    setIsUploadOpen(true);
   };
 
   const clearFile = () => {
     onFileSelect(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
   };
 
   return (
-    <div className="border-t border-primary-foreground/70 p-6 backdrop-blur-md sticky bottom-0">
-      <div className="max-w-4xl mx-auto flex flex-col gap-3">
-        {selectedFile && fileInfo && FileIconComponent && (
-          <div
-            className={`self-start flex items-center gap-2 ${fileInfo.bgColor} px-3 py-1.5 rounded-lg border border-border animate-in fade-in slide-in-from-bottom-2 duration-300 shadow-sm`}>
-            <FileIconComponent className={`w-4 h-4 ${fileInfo.color}`} />
-            <span className="text-xs font-semibold truncate max-w-[250px]">
-              {selectedFile.name}
-            </span>
-            <button
-              onClick={clearFile}
-              className="ml-1 p-0.5 hover:bg-background/50 rounded-full transition-colors">
-              <X className="w-3.5 h-3.5" />
-            </button>
-          </div>
-        )}
+    <div className="p-6 md:p-8 sticky bottom-0 z-20 bg-background/5 backdrop-blur-sm">
+      <div className="max-w-4xl mx-auto">
+        <FileUploadDialog
+          open={isUploadOpen}
+          onOpenChange={setIsUploadOpen}
+          onFileSelect={onFileSelect}
+        />
 
-        <div className="relative group w-full flex items-center gap-2">
-          <input
-            type="file"
-            ref={fileInputRef}
-            className="hidden"
-            onChange={handleFileChange}
-          />
-          <div className="relative flex-1">
-            <Button
-              size="icon"
-              variant="ghost"
-              onClick={handlePlusClick}
-              className="absolute left-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-lg hover:bg-muted text-muted-foreground transition-all z-10">
-              <Plus className="w-5 h-5" />
-            </Button>
-            <Input
-              placeholder="Ask a follow-up question..."
-              className="pl-12 pr-14 py-6 bg-primary-foreground border-primary/50 focus:bg-primary-foreground focus:shadow-md transition-all rounded-xl"
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              onKeyDown={(e) =>
-                e.key === "Enter" &&
-                (message.trim() || selectedFile) &&
-                onSend()
-              }
-            />
-            <Button
-              size="icon"
-              variant="ghost"
-              className={cn(
-                "absolute right-2 top-1/2 -translate-y-1/2 rounded-lg transition-all",
-                message.trim() || selectedFile
-                  ? "bg-primary text-primary-foreground hover:bg-primary/90"
-                  : "text-muted-foreground"
-              )}
-              onClick={onSend}
-              disabled={!message.trim() && !selectedFile}>
-              <Send className="w-4 h-4" />
-            </Button>
+        <div className="bg-secondary rounded-3xl p-6 md:p-8 flex flex-col gap-4 shadow-sm border border-destructive">
+          <div className="flex flex-col gap-3 text-left">
+            <span className="text-primary-foreground text-sm font-medium ml-1">
+              Message Companion
+            </span>
+
+            {selectedFile && fileInfo && FileIconComponent && (
+              <div
+                className={cn(
+                  "self-start flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 animate-in fade-in slide-in-from-bottom-2 duration-300 shadow-sm shrink-0 bg-primary-foreground"
+                )}>
+                <FileIconComponent className={cn("w-4 h-4", fileInfo.color)} />
+                <span
+                  className={cn(
+                    "text-xs font-semibold truncate max-w-[200px]",
+                    fileInfo.color
+                  )}>
+                  {selectedFile.name}
+                </span>
+                <button
+                  onClick={clearFile}
+                  className="ml-1 p-0.5 hover:bg-black/10 rounded-full transition-colors">
+                  <X className="w-3.5 h-3.5 text-black" />
+                </button>
+              </div>
+            )}
+
+            <div className="bg-primary-foreground rounded-2xl p-3 pl-4 flex items-center gap-3 group focus-within:ring-2 focus-within:ring-destructive/10 transition-all border border-primary">
+              <Button
+                size="icon"
+                variant="default"
+                onClick={handlePlusClick}
+                className="h-8 w-8 rounded-full bg-primary hover:bg-primary/80 shadow-md shadow-primary transition-all shrink-0">
+                <Plus className="w-5 h-5 text-white" />
+              </Button>
+
+              <Input
+                placeholder="Ask a follow-up question..."
+                className="flex-1 border-none bg-transparent focus-visible:ring-0 px-0 py-0 h-auto placeholder:text-primary text-base"
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                onKeyDown={(e) =>
+                  e.key === "Enter" &&
+                  (message.trim() || selectedFile) &&
+                  onSend()
+                }
+              />
+
+              <div className="flex items-center gap-4">
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className={cn(
+                    "rounded-full h-10 w-10 transition-all border border-primary shrink-0 shadow-sm",
+                    message.trim() || selectedFile
+                      ? "bg-primary text-primary-foreground hover:bg-primary/80"
+                      : "text-primary-foreground bg-primary/50 cursor-not-allowed"
+                  )}
+                  onClick={onSend}
+                  disabled={!message.trim() && !selectedFile}>
+                  <Send className="w-5 h-5 -rotate-45" />
+                </Button>
+              </div>
+            </div>
           </div>
+
+          <p className="text-primary-foreground/80 text-sm italic font-medium">
+            Companion is intended for informational purposes only. It may
+            contain errors and does not constitute legal advice
+          </p>
         </div>
       </div>
-      <p className="max-w-4xl mx-auto text-[11px] text-center text-primary-foreground mt-3 uppercase tracking-widest font-medium">
-        AI models can make mistakes. Verify important info.
-      </p>
     </div>
   );
 };

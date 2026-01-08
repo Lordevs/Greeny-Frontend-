@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useRef } from "react";
+import React, { useState } from "react";
 import { Plus, Send, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { getFileIcon } from "@/lib/chat-utils";
+import { FileUploadDialog } from "./file-upload-dialog";
 
 interface ChatWelcomeProps {
   message: string;
@@ -21,88 +22,96 @@ export const ChatWelcome: React.FC<ChatWelcomeProps> = ({
   selectedFile,
   onFileSelect,
 }) => {
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isUploadOpen, setIsUploadOpen] = useState(false);
   const fileInfo = selectedFile ? getFileIcon(selectedFile.name) : null;
   const FileIconComponent = fileInfo?.icon;
 
   const handlePlusClick = () => {
-    fileInputRef.current?.click();
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      onFileSelect(file);
-    }
+    setIsUploadOpen(true);
   };
 
   const clearFile = () => {
     onFileSelect(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
   };
 
   return (
-    <div className="text-center px-4">
-      <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-8">
+    <div className="text-center px-4 w-full">
+      <h2 className="text-2xl md:text-3xl font-bold text-slate-800 mb-8">
         What do you want to analyze today?
       </h2>
 
-      {/* Input with options */}
-      <div className="max-w-2xl mx-auto mb-60">
-        <div className="flex flex-col gap-3">
-          {selectedFile && fileInfo && FileIconComponent && (
-            <div
-              className={`self-start flex items-center gap-2 ${fileInfo.bgColor} px-3 py-1.5 rounded-lg border border-border animate-in fade-in slide-in-from-bottom-2 duration-300 shadow-sm`}>
-              <FileIconComponent className={`w-4 h-4 ${fileInfo.color}`} />
-              <span className="text-xs font-semibold truncate max-w-[200px]">
-                {selectedFile.name}
-              </span>
-              <button
-                onClick={clearFile}
-                className="ml-1 p-0.5 hover:bg-background/50 rounded-full transition-colors">
-                <X className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          )}
+      <FileUploadDialog
+        open={isUploadOpen}
+        onOpenChange={setIsUploadOpen}
+        onFileSelect={onFileSelect}
+      />
 
-          <div className="relative group w-full">
-            <input
-              type="file"
-              ref={fileInputRef}
-              className="hidden"
-              onChange={handleFileChange}
-            />
+      {/* Input Section */}
+      <div className="max-w-4xl mx-auto mb-40">
+        <div className="bg-secondary rounded-3xl p-6 md:p-8 flex flex-col gap-4 shadow-sm border border-destructive">
+          <div className="flex flex-col gap-3 text-left">
+            <span className="text-primary-foreground text-sm font-medium ml-1">
+              Message Companion
+            </span>
 
-            <div className="absolute left-4 top-1/2 -translate-y-1/2 z-10">
+            {selectedFile && fileInfo && FileIconComponent && (
+              <div
+                className={`self-start flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 animate-in fade-in slide-in-from-bottom-2 duration-300 shadow-sm shrink-0 bg-primary-foreground`}>
+                <FileIconComponent className={`w-4 h-4 ${fileInfo.color}`} />
+                <span
+                  className={`text-xs font-semibold truncate max-w-[200px] ${fileInfo.color}`}>
+                  {selectedFile.name}
+                </span>
+                <button
+                  onClick={clearFile}
+                  className="ml-1 p-0.5 hover:bg-black/20 rounded-full transition-colors">
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            )}
+
+            <div className="bg-primary-foreground rounded-2xl p-3 pl-4 flex items-center gap-3 group focus-within:ring-2 focus-within:ring-destructive/10 transition-all border border-primary">
               <Button
                 size="icon"
-                variant="ghost"
+                variant="default"
                 onClick={handlePlusClick}
-                className="h-8 w-8 rounded-full hover:bg-muted text-muted-foreground group-focus-within:text-primary transition-colors">
-                <Plus className="w-5 h-5" />
+                className="h-8 w-8 rounded-full bg-primary hover:bg-primary/80 shadow-md shadow-primary transition-all shrink-0 cursor-pointer">
+                <Plus className="w-5 h-5 text-white" />
               </Button>
+
+              <Input
+                placeholder="Ask anything about your documents"
+                className="flex-1 border-none bg-transparent focus-visible:ring-0 px-0 py-0 h-auto t placeholder:text-primary text-base"
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                onKeyDown={(e) =>
+                  e.key === "Enter" &&
+                  (message.trim() || selectedFile) &&
+                  onSend()
+                }
+              />
+
+              <div className="flex items-center  gap-4">
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className={`rounded-full h-10 w-10 transition-all border border-primary shrink-0 shadow-sm ${
+                    message.trim() || selectedFile
+                      ? "bg-primary text-primary-foreground hover:bg-primary/80"
+                      : "text-primary-foreground bg-primary/50 cursor-not-allowed"
+                  }`}
+                  onClick={onSend}
+                  disabled={!message.trim() && !selectedFile}>
+                  <Send className="w-5 h-5 -rotate-45" />
+                </Button>
+              </div>
             </div>
-            <Input
-              placeholder="Can you analyze saudi arabia CPI index for inflation from 2000 to now"
-              className="pl-14 pr-14 py-7 text-lg bg-white shadow-sm border-border rounded-full focus-visible:ring-primary/20 transition-all"
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              onKeyDown={(e) =>
-                e.key === "Enter" &&
-                (message.trim() || selectedFile) &&
-                onSend()
-              }
-            />
-            <Button
-              size="icon"
-              className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full h-11 w-11 shadow-md hover:shadow-lg transition-all"
-              onClick={onSend}
-              disabled={!message.trim() && !selectedFile}>
-              <Send className="w-4 h-4" />
-            </Button>
           </div>
+
+          <p className="text-primary-foreground/80 text-sm italic font-medium">
+            Companion is intended for informational purposes only. It may
+            contain errors and does not constitute legal advice
+          </p>
         </div>
       </div>
     </div>

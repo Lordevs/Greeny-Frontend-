@@ -49,6 +49,8 @@ const ChatLayout = ({ children }: ChatLayoutProps) => {
     params.id as string
   );
 
+  const [sessionKey, setSessionKey] = useState(0);
+
   useEffect(() => {
     if (params.id) {
       setActiveThread(params.id as string);
@@ -64,6 +66,7 @@ const ChatLayout = ({ children }: ChatLayoutProps) => {
 
   const handleNewChat = () => {
     setActiveThread(undefined);
+    setSessionKey((prev) => prev + 1);
     router.push("/chats");
   };
 
@@ -85,7 +88,9 @@ const ChatLayout = ({ children }: ChatLayoutProps) => {
             {/* Can add extra mobile controls here if needed */}
           </div>
         </header>
-        <div className="flex-1">{children}</div>
+        <div className="flex-1" key={sessionKey}>
+          {children}
+        </div>
       </SidebarInset>
     </SidebarProvider>
   );

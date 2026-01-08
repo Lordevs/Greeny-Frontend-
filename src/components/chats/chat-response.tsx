@@ -41,7 +41,7 @@ export const ChatResponse: React.FC<ChatResponseProps> = ({
       {/* User Message - Orange Box */}
       {(userMessage || userFile) && (
         <div className="flex justify-end pr-0">
-          <div className="bg-secondary text-primary-foreground p-4 md:p-5 rounded-2xl rounded-tr-none shadow-lg max-w-[95%] md:max-w-[70%] text-sm md:text-base leading-relaxed animate-in zoom-in-95 duration-300 break-words whitespace-pre-wrap flex flex-col gap-3">
+          <div className="bg-secondary text-primary-foreground p-4 md:p-5 rounded-2xl rounded-tr-none shadow-lg max-w-[95%] md:max-w-[70%] text-sm md:text-base leading-relaxed animate-in zoom-in-95 duration-300 wrap-break-word whitespace-pre-wrap flex flex-col gap-3">
             {userFile && fileInfo && FileIconComponent && (
               <div
                 className={`flex items-center gap-2 ${fileInfo.bgColor} p-2 rounded-lg border border-white/20`}>
@@ -80,7 +80,7 @@ export const ChatResponse: React.FC<ChatResponseProps> = ({
               <h3 className="text-xl md:text-2xl font-bold text-primary-foreground mb-3 leading-tight">
                 {title}
               </h3>
-              <p className="text-base md:text-lg text-primary-foreground leading-relaxed mb-6 md:mb-8 break-words whitespace-pre-wrap">
+              <p className="text-base md:text-lg text-primary-foreground leading-relaxed mb-6 md:mb-8 wrap-break-word whitespace-pre-wrap">
                 {description}
               </p>
 

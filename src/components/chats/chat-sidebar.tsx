@@ -64,11 +64,11 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
 
   return (
     <Sidebar className="bg-secondary border-r border-border">
-      <SidebarHeader className="p-4 space-y-4">
+      <SidebarHeader className="p-4 space-y-4 ">
         <Image src="/logo.svg" alt="" width={150} height={150} />
         <Button
           onClick={onNewChat}
-          className="w-full justify-start bg-accent gap-2 shadow-sm transition-all hover:shadow-md border-primary-foreground"
+          className="w-full justify-start bg-accent gap-2 shadow-sm transition-all hover:shadow-md border-primary-foreground cursor-pointer"
           variant="outline">
           <Plus className="w-4 h-4 text-primary-foreground" />
           <span className="font-medium text-primary-foreground">New Chat</span>
@@ -101,7 +101,7 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
                           onClick={() => onSelectThread(thread.id)}
                           isActive={activeThreadId === thread.id}
                           className={cn(
-                            "transition-all duration-200",
+                            "transition-all duration-200 cursor-pointer",
                             activeThreadId === thread.id
                               ? "bg-primary/10 text-primary font-medium hover:bg-primary/15"
                               : "hover:bg-muted/50"
