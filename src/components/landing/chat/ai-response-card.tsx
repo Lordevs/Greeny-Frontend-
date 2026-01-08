@@ -1,5 +1,39 @@
 import { Lightbulb, type LucideIcon } from "lucide-react";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart";
+import {
+  Area,
+  AreaChart,
+  CartesianGrid,
+  ResponsiveContainer,
+  XAxis,
+  YAxis,
+} from "recharts";
+
+const chartData = [
+  { year: "2008", index: 92 },
+  { year: "2010", index: 100 },
+  { year: "2012", index: 115 },
+  { year: "2014", index: 122 },
+  { year: "2016", index: 118 },
+  { year: "2018", index: 112 },
+  { year: "2020", index: 105 },
+  { year: "2022", index: 108 },
+  { year: "2024", index: 114 },
+];
+
+const chartConfig = {
+  index: {
+    label: "CPI Index",
+    color: "#FB923C",
+  },
+};
 
 interface Trend {
   icon: LucideIcon;
@@ -35,108 +69,49 @@ export default function AIResponseCard({
         <h4 className="text-sm font-bold text-primary-foreground/60 uppercase tracking-wider mb-6">
           Saudi Arabia CPI Index (2010=100) by Year
         </h4>
-        <div className="h-64 relative">
-          <svg
-            className="w-full h-full"
-            viewBox="0 0 400 150"
-            preserveAspectRatio="none">
-            <defs>
-              <linearGradient
-                id="chartGradient"
-                x1="0%"
-                y1="0%"
-                x2="0%"
-                y2="100%">
-                <stop offset="0%" stopColor="#FB923C" stopOpacity="0.3" />
-                <stop offset="100%" stopColor="#FB923C" stopOpacity="0.05" />
-              </linearGradient>
-            </defs>
-            {/* Grid lines */}
-            <line
-              x1="0"
-              y1="30"
-              x2="400"
-              y2="30"
-              stroke="#f1f5f9"
-              strokeWidth="1"
-            />
-            <line
-              x1="0"
-              y1="60"
-              x2="400"
-              y2="60"
-              stroke="#f1f5f9"
-              strokeWidth="1"
-            />
-            <line
-              x1="0"
-              y1="90"
-              x2="400"
-              y2="90"
-              stroke="#f1f5f9"
-              strokeWidth="1"
-            />
-            <line
-              x1="0"
-              y1="120"
-              x2="400"
-              y2="120"
-              stroke="#f1f5f9"
-              strokeWidth="1"
-            />
-
-            {/* Area fill */}
-            <path
-              d="M 20 120 L 60 100 L 100 60 L 140 50 L 180 55 L 220 65 L 260 75 L 300 70 L 340 65 L 380 60 L 380 130 L 20 130 Z"
-              fill="url(#chartGradient)"
-            />
-
-            {/* Line */}
-            <path
-              d="M 20 120 L 60 100 L 100 60 L 140 50 L 180 55 L 220 65 L 260 75 L 300 70 L 340 65 L 380 60"
-              fill="none"
-              stroke="#FB923C"
-              strokeWidth="4"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-
-            {/* Data points */}
-            <circle
-              cx="100"
-              cy="60"
-              r="6"
-              fill="#FB923C"
-              stroke="white"
-              strokeWidth="2"
-            />
-            <circle
-              cx="380"
-              cy="60"
-              r="6"
-              fill="#FB923C"
-              stroke="white"
-              strokeWidth="2"
-            />
-          </svg>
-
-          {/* Y-axis labels */}
-          <div className="absolute left-0 top-0 h-full flex flex-col justify-between text-xs font-bold text-muted-foreground/60 py-2">
-            <span>130</span>
-            <span>120</span>
-            <span>110</span>
-            <span>100</span>
-            <span>90</span>
-          </div>
-
-          {/* X-axis labels */}
-          <div className="absolute bottom-0 left-8 right-0 flex justify-between text-xs font-bold text-muted-foreground/60">
-            <span>2008</span>
-            <span>2010</span>
-            <span>2015</span>
-            <span>2020</span>
-            <span>2024</span>
-          </div>
+        <div className="h-64 w-full">
+          <ChartContainer config={chartConfig} className="h-full w-full">
+            <AreaChart
+              data={chartData}
+              margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+              <defs>
+                <linearGradient id="fillIndex" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#FB923C" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="#FB923C" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid
+                vertical={false}
+                strokeDasharray="3 3"
+                className="stroke-muted/20"
+              />
+              <XAxis
+                dataKey="year"
+                axisLine={false}
+                tickLine={false}
+                tick={{ fill: "currentColor", opacity: 0.5, fontSize: 12 }}
+                tickMargin={12}
+              />
+              <YAxis
+                axisLine={false}
+                tickLine={false}
+                tick={{ fill: "currentColor", opacity: 0.5, fontSize: 12 }}
+                domain={["dataMin - 10", "dataMax + 10"]}
+              />
+              <ChartTooltip
+                cursor={false}
+                content={<ChartTooltipContent hideIndicator />}
+              />
+              <Area
+                type="monotone"
+                dataKey="index"
+                stroke="#FB923C"
+                strokeWidth={3}
+                fillOpacity={1}
+                fill="url(#fillIndex)"
+              />
+            </AreaChart>
+          </ChartContainer>
         </div>
       </div>
 
@@ -191,11 +166,12 @@ export default function AIResponseCard({
         </p>
         <div className="flex flex-wrap gap-3">
           {suggestedActions.map((action, index) => (
-            <button
+            <Button
               key={index}
-              className="px-6 py-3 rounded-full border border-border bg-primary-foreground text-sm font-semibold text-foreground hover:bg-secondary hover:text-white transition-all shadow-sm hover:shadow-md hover:-translate-y-0.5">
+              variant="outline"
+              className="px-6 py-6 rounded-full border-border bg-primary-foreground text-sm font-semibold text-foreground hover:bg-secondary hover:text-white transition-all shadow-sm hover:shadow-md hover:-translate-y-0.5">
               {action}
-            </button>
+            </Button>
           ))}
         </div>
       </div>

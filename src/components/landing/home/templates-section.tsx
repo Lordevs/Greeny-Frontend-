@@ -55,24 +55,24 @@ const templates = [
 
 export default function TemplatesSection() {
   return (
-    <section className="bg-secondary py-15">
+    <section className="bg-secondary px-4 py-16 md:px-6 md:py-24">
       <div className="max-w-7xl mx-auto text-center">
-        <h2 className="text-4xl md:text-5xl font-bold text-primary-foreground mb-4">
+        <h2 className="text-3xl md:text-5xl font-bold text-primary-foreground mb-4 leading-tight">
           Choose from Ready-Made Templates
         </h2>
-        <p className="text-xl text-primary-foreground/90 mb-16 max-w-3xl mx-auto">
+        <p className="text-lg md:text-xl text-primary-foreground/90 mb-12 md:mb-16 max-w-3xl mx-auto">
           Get started instantly with pre-built dashboards for your industry and
           use case.
         </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 mb-12 md:mb-16">
           {templates.map((template, index) => (
             <Card
               key={index}
-              className="bg-primary-foreground gap-0 py-0 border-none rounded-2xl overflow-hidden shadow-xl">
-              <CardContent className="p-5 text-left">
-                <div className="bg-secondary rounded-lg h-17 mb-3 flex items-center px-4">
-                  <div className="w-6 h-6 relative">
+              className="bg-primary-foreground gap-0 py-0 border-none rounded-2xl overflow-hidden shadow-xl transition-all hover:shadow-2xl">
+              <CardContent className="p-6 md:p-8 text-left h-full flex flex-col">
+                <div className="bg-secondary rounded-xl h-14 md:h-16 mb-4 flex items-center px-4 w-fit min-w-[60px]">
+                  <div className="w-6 h-6 relative mx-auto">
                     <Image
                       src={template.logo}
                       alt={template.title}
@@ -82,18 +82,18 @@ export default function TemplatesSection() {
                   </div>
                 </div>
 
-                <h3 className="text-2xl font-bold text-destructive mb-3">
+                <h3 className="text-xl md:text-2xl font-bold text-destructive mb-3 group-hover:text-primary transition-colors">
                   {template.title}
                 </h3>
-                <p className="text-destructive/90 text-lg leading-relaxed mb-2 min-h-20">
+                <p className="text-destructive/80 text-base md:text-lg leading-relaxed mb-6 grow">
                   {template.description}
                 </p>
 
-                <div className="flex justify-between items-center mt-auto">
-                  <span className="text-destructive/90 text-sm font-medium">
+                <div className="flex justify-between items-center pt-4 border-t border-destructive/10">
+                  <span className="text-destructive/70 text-sm font-medium">
                     {template.widgets}
                   </span>
-                  <button className="text-destructive/90 font-bold hover:underline transition-all">
+                  <button className="text-destructive font-bold hover:text-primary transition-all">
                     {template.action}
                   </button>
                 </div>
@@ -104,7 +104,7 @@ export default function TemplatesSection() {
 
         <Button
           size="lg"
-          className="bg-destructive hover:bg-secondary text-primary-foreground rounded-full px-10 py-6 text-lg font-bold shadow-2xl transition-all hover:scale-105">
+          className="bg-destructive hover:bg-destructive/90 text-primary-foreground rounded-full px-8 md:px-10 py-5 md:py-6 text-lg font-bold shadow-2xl transition-all hover:scale-105 active:scale-95">
           Browse All Templates
         </Button>
       </div>
