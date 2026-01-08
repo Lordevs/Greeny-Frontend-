@@ -10,4 +10,7 @@ export const ROUTES = {
     CHAT: "/chat",
     TEAMS: "/teams",
   },
+  CHAT: {
+    ROOT: "/chats",
+  },
 };

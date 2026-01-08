@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import AIHeader from "@/components/chat/ai-header";
-import MessageList from "@/components/chat/message-list";
-import ChatInput from "@/components/chat/chat-input";
+import AIHeader from "@/components/landing/chat/ai-header";
+import MessageList from "@/components/landing/chat/message-list";
+import ChatInput from "@/components/landing/chat/chat-input";
 import CTASection from "@/components/common/cta-section";
 
 export default function ChatPage() {

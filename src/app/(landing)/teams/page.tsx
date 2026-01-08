@@ -1,7 +1,7 @@
 import HeroSection from "@/components/common/hero-section";
-import TeamsFeaturesSection from "@/components/teams/features-section";
-import TeamsProductivitySection from "@/components/teams/productivity-section";
-import TeamsTypesSection from "@/components/teams/types-section";
+import TeamsFeaturesSection from "@/components/landing/teams/features-section";
+import TeamsProductivitySection from "@/components/landing/teams/productivity-section";
+import TeamsTypesSection from "@/components/landing/teams/types-section";
 import CTASection from "@/components/common/cta-section";
 
 export default function Teams() {

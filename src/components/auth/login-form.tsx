@@ -131,7 +131,7 @@ export default function LoginForm() {
               transition={{ duration: 0.5, delay: 0.7, ease: "easeOut" }}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}>
-              <Link href="">
+              <Link href={ROUTES.CHAT.ROOT}>
                 <Button variant="destructive" className="w-full">
                   Login
                 </Button>
