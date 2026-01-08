@@ -58,11 +58,12 @@ export default function Navbar() {
             key={item.href}
             href={item.href}
             className={cn(
-              "text-md font-medium transition-colors",
+              "text-md font-medium transition-colors flex items-center gap-2",
               isActive(item.href)
                 ? "text-primary-foreground underline underline-offset-4"
                 : "text-primary-foreground/80 hover:text-primary-foreground"
             )}>
+            <item.icon className="w-4 h-4" />
             {item.name}
           </Link>
         ))}
@@ -125,11 +126,12 @@ export default function Navbar() {
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    "text-lg font-medium transition-colors",
+                    "text-lg font-medium transition-colors flex items-center gap-3",
                     isActive(item.href)
                       ? "text-primary-foreground"
                       : "text-primary-foreground/70 hover:text-primary-foreground"
                   )}>
+                  <item.icon className="w-5 h-5" />
                   {item.name}
                 </Link>
               ))}
