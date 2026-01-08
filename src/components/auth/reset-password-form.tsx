@@ -42,7 +42,7 @@ export default function ResetPasswordForm() {
 
   return (
     <motion.div
-      className="flex flex-1 items-center justify-center"
+      className="w-full"
       initial={{ opacity: 0, x: 50 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.8, ease: "easeOut" }}>
@@ -50,8 +50,8 @@ export default function ResetPasswordForm() {
         initial={{ opacity: 0, y: 30, scale: 0.95 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}>
-        <Card className="border-border/70 bg-card/80 w-full max-w-md shadow-[0_10px_26px_#e0e0e0a1] backdrop-blur-lg dark:shadow-none">
-          <CardContent className="space-y-4 p-6">
+        <Card className="border-border/70 bg-card/80 w-full shadow-[0_10px_26px_#e0e0e0a1] backdrop-blur-lg dark:shadow-none">
+          <CardContent className="space-y-4 p-6 md:p-8">
             {/* Logo and Header */}
             <motion.div
               className="space-y-2 text-center"
