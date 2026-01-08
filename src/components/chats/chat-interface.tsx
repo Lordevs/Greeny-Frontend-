@@ -49,6 +49,17 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
   const [lastUserMessage, setLastUserMessage] = useState<string | undefined>();
   const [lastUserFile, setLastUserFile] = useState<File | null>(null);
 
+  // On mount, if we are in response mode, check if we have a pending initial message
+  React.useEffect(() => {
+    if (mode === "response" && !lastUserMessage) {
+      const pendingMessage = sessionStorage.getItem("pending_chat_message");
+      if (pendingMessage) {
+        setLastUserMessage(pendingMessage);
+        sessionStorage.removeItem("pending_chat_message");
+      }
+    }
+  }, [mode, lastUserMessage]);
+
   const handleSendMessage = () => {
     if (!message.trim() && !selectedFile) return;
 
@@ -58,9 +69,11 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
     setMessage("");
     setSelectedFile(null);
 
-    // If we are in welcome mode, switch to response mode
+    // If we are in welcome mode, navigate to a new chat ID page
     if (mode === "welcome") {
-      setMode("response");
+      sessionStorage.setItem("pending_chat_message", currentMessage);
+      const newChatId = Math.random().toString(36).substring(7);
+      router.push(`/chats/${newChatId}`);
     } else {
       console.log("Follow up:", currentMessage);
     }

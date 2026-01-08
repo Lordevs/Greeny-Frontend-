@@ -1,4 +1,5 @@
 "use client";
+import { useState } from "react";
 import { MessageSquare, Plus, Search, Settings, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -43,11 +44,18 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
   onNewChat,
 }) => {
   const pathname = usePathname();
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // Filter threads based on search query
+  const filteredThreads = threads.filter((thread) =>
+    thread.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   // Group threads by date
   const today = new Date().toDateString();
   const yesterday = new Date(Date.now() - 86400000).toDateString();
 
-  const groupedThreads = threads.reduce((acc, thread) => {
+  const groupedThreads = filteredThreads.reduce((acc, thread) => {
     const threadDate = new Date(thread.date).toDateString();
     let group = "Previous";
 
@@ -78,12 +86,21 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
           <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-primary-foreground group-focus-within:text-primary transition-colors" />
           <SidebarInput
             placeholder="Search chats..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-9 border-primary-foreground bg-accent placeholder:text-primary-foreground transition-all"
           />
         </div>
       </SidebarHeader>
 
       <SidebarContent className="px-2">
+        {filteredThreads.length === 0 && searchQuery && (
+          <div className="px-4 py-8 text-center animate-in fade-in duration-300">
+            <p className="text-xs text-primary-foreground/50 italic font-medium">
+              No matches found for "{searchQuery}"
+            </p>
+          </div>
+        )}
         {Object.entries(groupedThreads).map(
           ([group, groupThreads]) =>
             groupThreads.length > 0 && (
