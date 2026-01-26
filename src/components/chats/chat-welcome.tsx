@@ -3,9 +3,10 @@
 import React, { useState } from "react";
 import { Plus, Send, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { getFileIcon } from "@/lib/chat-utils";
 import { FileUploadDialog } from "./file-upload-dialog";
+import { toast } from "sonner";
+
 
 interface ChatWelcomeProps {
   message: string;
@@ -13,6 +14,7 @@ interface ChatWelcomeProps {
   onSend: () => void;
   selectedFile: File | null;
   onFileSelect: (file: File | null) => void;
+  isLoading?: boolean;
 }
 
 export const ChatWelcome: React.FC<ChatWelcomeProps> = ({
@@ -21,22 +23,25 @@ export const ChatWelcome: React.FC<ChatWelcomeProps> = ({
   onSend,
   selectedFile,
   onFileSelect,
+  isLoading,
 }) => {
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const fileInfo = selectedFile ? getFileIcon(selectedFile.name) : null;
   const FileIconComponent = fileInfo?.icon;
 
   const handlePlusClick = () => {
+    if (isLoading) return;
     setIsUploadOpen(true);
   };
 
   const clearFile = () => {
+    if (isLoading) return;
     onFileSelect(null);
   };
 
   return (
     <div className="text-center px-4 w-full">
-      <h2 className="text-2xl md:text-3xl font-bold text-primary-foreground">
+      <h2 className="text-2xl md:text-3xl font-bold text-primary-foreground text-center">
         What do you want to analyze today?
       </h2>
 
@@ -60,7 +65,8 @@ export const ChatWelcome: React.FC<ChatWelcomeProps> = ({
                 </span>
                 <button
                   onClick={clearFile}
-                  className="ml-1 p-0.5 hover:bg-black/20 rounded-full transition-colors">
+                  disabled={isLoading}
+                  className="ml-1 p-0.5 hover:bg-black/20 rounded-full transition-colors disabled:opacity-50">
                   <X className="w-3.5 h-3.5" />
                 </button>
               </div>
@@ -72,14 +78,16 @@ export const ChatWelcome: React.FC<ChatWelcomeProps> = ({
                   size="icon"
                   variant="default"
                   onClick={handlePlusClick}
-                  className="h-8 w-8 rounded-full bg-primary hover:bg-primary/80 shadow-md shadow-primary transition-all shrink-0 cursor-pointer">
+                  disabled={isLoading}
+                  className="h-8 w-8 rounded-full bg-primary hover:bg-primary/80 shadow-md shadow-primary transition-all shrink-0 cursor-pointer disabled:opacity-50">
                   <Plus className="w-5 h-5 text-white" />
                 </Button>
               </div>
 
               <textarea
                 placeholder="Ask anything about your documents"
-                className="flex-1 border-none bg-transparent focus:outline-none px-0 py-2 h-auto min-h-[40px] max-h-[300px] placeholder:text-primary text-base resize-none field-sizing-content"
+                disabled={isLoading}
+                className="flex-1 border-none bg-transparent focus:outline-none px-0 py-2 h-auto min-h-[40px] max-h-[300px] placeholder:text-primary text-base resize-none field-sizing-content disabled:opacity-50"
                 value={message}
                 rows={1}
                 onChange={(e) => setMessage(e.target.value)}
@@ -90,7 +98,11 @@ export const ChatWelcome: React.FC<ChatWelcomeProps> = ({
                       return;
                     } else {
                       e.preventDefault();
-                      if (message.trim() || selectedFile) {
+                      if ((message.trim() || selectedFile) && !isLoading) {
+                        if (!selectedFile) {
+                          toast.error("Please upload a CSV or PDF file first to start the analysis.");
+                          return;
+                        }
                         onSend();
                       }
                     }
@@ -102,20 +114,36 @@ export const ChatWelcome: React.FC<ChatWelcomeProps> = ({
                 <Button
                   size="icon"
                   variant="ghost"
-                  className={`rounded-full h-10 w-10 transition-all border border-primary shrink-0 shadow-sm ${
-                    message.trim() || selectedFile
-                      ? "bg-primary text-primary-foreground hover:bg-primary/80"
-                      : "text-primary-foreground bg-primary/50 cursor-not-allowed"
-                  }`}
-                  onClick={onSend}
-                  disabled={!message.trim() && !selectedFile}>
-                  <Send className="w-5 h-5 -rotate-45" />
+                  className={`rounded-full h-10 w-10 transition-all border border-primary shrink-0 shadow-sm ${(message.trim() || selectedFile) && !isLoading
+                    ? "bg-primary text-primary-foreground hover:bg-primary/80"
+                    : "text-primary-foreground bg-primary/50 cursor-not-allowed"
+                    }`}
+                  onClick={() => {
+                    if (!selectedFile) {
+                      toast.error("Please upload a CSV or PDF file first to start the analysis.");
+                      return;
+                    }
+                    onSend();
+                  }}
+                  disabled={!selectedFile || isLoading}>
+                  {isLoading ? (
+                    <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent" />
+                  ) : (
+                    <Send className="w-5 h-5 -rotate-45" />
+                  )}
                 </Button>
               </div>
             </div>
+            {!selectedFile && !isLoading && (
+              <p className="text-center text-xs text-primary-foreground/40 mt-2 font-medium animate-pulse">
+                Kindly upload a CSV or PDF file to begin your analysis.
+              </p>
+            )}
           </div>
         </div>
       </div>
     </div>
   );
 };
+
+

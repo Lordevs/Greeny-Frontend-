@@ -5,11 +5,14 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { ROUTES } from "@/constants/routes";
 
+import { useAuth } from "@/hooks/use-auth";
+
 export default function AIHeader() {
   const router = useRouter();
+  const { user } = useAuth();
 
-  // Mock login status - in a real app, this would come from an auth hook
-  const isLoggedIn = false;
+  const isLoggedIn = !!user;
+
 
   const handleNewChat = () => {
     // Logic: if logged in move to app chat, else move to login

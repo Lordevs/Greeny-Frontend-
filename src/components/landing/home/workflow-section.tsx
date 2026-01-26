@@ -1,6 +1,8 @@
 import { Clock, Bell, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import { ROUTES } from "@/constants/routes";
+
 
 export default function WorkflowSection() {
   return (
@@ -64,8 +66,9 @@ export default function WorkflowSection() {
 
               <div>
                 <Link
-                  href="#"
+                  href={ROUTES.CHAT.ROOT}
                   className="group inline-flex items-center gap-2 text-lg md:text-xl font-bold text-orange-600 transition-all hover:gap-4">
+
                   Start Building Now
                   <ArrowRight className="h-5 w-5 md:h-6 md:w-6 transition-transform group-hover:translate-x-1" />
                 </Link>

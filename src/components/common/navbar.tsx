@@ -17,12 +17,15 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 
+import { useAuth } from "@/hooks/use-auth";
+
 export default function Navbar() {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
+  const { user } = useAuth();
 
-  // Mock login status
-  const isLoggedIn = false;
+  const isLoggedIn = !!user;
+
 
   useEffect(() => {
     const handleScroll = () => {

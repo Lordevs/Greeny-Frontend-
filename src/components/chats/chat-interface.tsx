@@ -48,150 +48,154 @@ interface Turn {
   indexData: any[];
 }
 
+import { useAnalysis } from "@/hooks/use-analysis";
+import { useAuth } from "@/hooks/use-auth";
+import { toast } from "sonner";
+import { ROUTES } from "@/constants/routes";
+
+import { ChatHeader } from "./chat-header";
+
 export const ChatInterface: React.FC<ChatInterfaceProps> = ({
   initialMode = "welcome",
   chatId,
 }) => {
   const router = useRouter();
-  const [mode, setMode] = useState(initialMode);
+  const { user } = useAuth();
+
+  const {
+    conversation,
+    isLoadingConversation,
+    uploadFile,
+    isUploading,
+    createConversation,
+    isCreating,
+    deleteConversation,
+    analyze,
+    isAnalyzing
+  } = useAnalysis(chatId);
+
   const [message, setMessage] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [turns, setTurns] = useState<Turn[]>([]);
   const scrollContainerRef = React.useRef<HTMLDivElement>(null);
+  const messagesEndRef = React.useRef<HTMLDivElement>(null);
 
-  // Scroll to bottom on new turns
-  useEffect(() => {
-    if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollTop =
-        scrollContainerRef.current.scrollHeight;
-    }
-  }, [turns]);
+  const isLoading = isAnalyzing || isUploading || isCreating;
 
-  // On mount, if we are in response mode, check if we have a pending initial message or generate default
-  useEffect(() => {
-    if (mode === "response" && turns.length === 0) {
-      const pendingMessage = sessionStorage.getItem("pending_chat_message");
-      const initialId = "initial";
-      const userMsg =
-        pendingMessage || "Analyzing historical CPI data patterns...";
-
-      // Add loading state turn
-      setTurns([
-        {
-          id: initialId,
-          userMessage: userMsg,
-          userFile: null,
-          title: "Synthesizing Data Insights...",
-          description:
-            "Applying advanced cross-correlation algorithms to the current dataset...",
-          trendData: [],
-          indexData: [],
-        },
-      ]);
-
-      if (pendingMessage) sessionStorage.removeItem("pending_chat_message");
-
-      // Complete the turn with real data after a delay
-      const timer = setTimeout(() => {
-        setTurns((prev) =>
-          prev.map((t) =>
-            t.id === initialId
-              ? {
-                  ...t,
-                  title: "Saudi Arabia CPI & Inflation Analysis (2000-2024)",
-                  description:
-                    "I've analyzed Saudi Arabia's Consumer Price Index (CPI) and inflation rates from 2000 to 2024. Here's what the data reveals about economic trends and stability periods.",
-                  trendData: cpiTrendData,
-                  indexData: cpiIndexData,
-                }
-              : t
-          )
-        );
-      }, 1000);
-
-      return () => clearTimeout(timer);
-    }
-  }, [mode, turns.length]);
-
-  const handleSendMessage = () => {
-    if (!message.trim() && !selectedFile) return;
-
-    const currentMessage = message.trim();
-    const currentFile = selectedFile;
-    setMessage("");
-    setSelectedFile(null);
-
-    // If we are in welcome mode, navigate to a new chat ID page
-    if (mode === "welcome") {
-      sessionStorage.setItem("pending_chat_message", currentMessage);
-      const newChatId = Math.random().toString(36).substring(7);
-      router.push(`/chats/${newChatId}`);
-    } else {
-      // Follow up turn
-      const turnId = Date.now().toString();
-      const loadingTurn: Turn = {
-        id: turnId,
-        userMessage: currentMessage,
-        userFile: currentFile,
-        title: "Processing insights...",
-        description:
-          "Scanning for sector-specific anomalies and historical precedents...",
-        trendData: [],
-        indexData: [],
-      };
-
-      setTurns((prev) => [...prev, loadingTurn]);
-
-      setTimeout(() => {
-        setTurns((prev) =>
-          prev.map((t) =>
-            t.id === turnId
-              ? {
-                  ...t,
-                  title: "Targeted Sector Analysis",
-                  description:
-                    "Continuing our investigation into the specific parameters you highlighted. I've integrated these findings with the broader regional volatility index for more granular context.",
-                  trendData: cpiTrendData,
-                  indexData: cpiIndexData,
-                }
-              : t
-          )
-        );
-      }, 1500);
+  const handleDeleteChat = () => {
+    if (chatId) {
+      deleteConversation(chatId, {
+        onSuccess: () => {
+          router.push(ROUTES.CHAT.ROOT);
+        }
+      });
     }
   };
+
+  // Scroll to bottom on new messages or when bot starts thinking
+  useEffect(() => {
+    const scrollToBottom = () => {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    };
+
+    // Use multiple triggers and a slightly longer delay to ensure layout is complete
+    const timer = setTimeout(scrollToBottom, 50);
+    return () => clearTimeout(timer);
+  }, [conversation?.messages, isAnalyzing]);
+
+
+
+  const handleSendMessage = async () => {
+    const currentMessage = message.trim();
+    if ((!currentMessage && !selectedFile) || isLoading) return;
+
+    if (initialMode === "welcome") {
+      // Logic for new conversation
+
+      const chatTitle = currentMessage
+        ? (currentMessage.length > 40 ? currentMessage.substring(0, 40) + "..." : currentMessage)
+        : (selectedFile ? `Analysis of ${selectedFile.name}` : "New Analysis");
+
+      const proceedToCreate = (fileId?: string) => {
+        createConversation({
+          title: chatTitle,
+          uploaded_file_id: fileId,
+          model: 'claude-sonnet-4-5'
+        }, {
+          onSuccess: (newConv) => {
+            if (currentMessage) {
+              sessionStorage.setItem("pending_analysis", currentMessage);
+            }
+            router.push(`${ROUTES.CHAT.ROOT}/${newConv.id}`);
+          },
+          onError: (err: any) => {
+            toast.error(err.response?.data?.error || "Failed to create conversation");
+          }
+        });
+      };
+
+      if (selectedFile) {
+        uploadFile(selectedFile, {
+          onSuccess: (data) => {
+            proceedToCreate(data.file.id);
+          },
+          onError: (err: any) => {
+            toast.error(err.response?.data?.error || "File upload failed");
+          }
+        });
+      } else {
+        proceedToCreate();
+      }
+    } else if (chatId) {
+      // Follow up in existing conversation
+      setMessage("");
+      setSelectedFile(null);
+      analyze(currentMessage);
+    }
+  };
+
+
+
+  // Trigger pending analysis if any
+  useEffect(() => {
+    if (conversation && !isLoadingConversation && initialMode === "response") {
+      const pending = sessionStorage.getItem("pending_analysis");
+      if (pending && conversation.messages.length === 0) {
+        sessionStorage.removeItem("pending_analysis");
+        analyze(pending);
+      }
+    }
+  }, [conversation, isLoadingConversation, initialMode, analyze]);
+
+  if (chatId && isLoadingConversation) {
+    return (
+      <div className="flex h-full items-center justify-center bg-background">
+        <div className="animate-pulse text-primary-foreground font-bold">Initializing Analysis Agent...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col h-full bg-background relative overflow-hidden">
       {/* Header */}
-      <div className="border-b border-border p-4 bg-secondary backdrop-blur-sm sticky top-0 z-10 w-full shrink-0">
-        <div>
-          <div className="flex items-center gap-1">
-            <h1 className="text-xl font-bold text-primary-foreground tracking-tight">
-              AI Analysis Hub
-            </h1>
-            <Badge
-              variant="secondary"
-              className="bg-emerald-100 text-emerald-700 hover:bg-emerald-200 border-none px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">
-              Agent Active
-            </Badge>
-          </div>
-        </div>
-      </div>
+      <ChatHeader
+        title={initialMode === "welcome" ? "AI Analysis Hub" : (conversation?.title || "Analysis Detail")}
+        onDelete={initialMode === "response" ? handleDeleteChat : undefined}
+      />
+
 
       {/* Main Content Area */}
       <div
         ref={scrollContainerRef}
         className={cn(
           "flex-1 overflow-y-auto scroll-smooth",
-          mode === "welcome" && "flex items-center justify-center p-4 md:p-6"
+          initialMode === "welcome" && "flex items-center justify-center p-4 md:p-6"
         )}>
         <div
           className={cn(
             "w-full mx-auto",
-            mode === "welcome" ? "py-0" : "py-8 md:py-12 max-w-5xl"
+            initialMode === "welcome" ? "py-0" : "py-8 md:py-12 max-w-5xl"
           )}>
-          {mode === "welcome" ? (
+          {initialMode === "welcome" ? (
             <div className="animate-in fade-in slide-in-from-bottom-8 duration-700 w-full max-w-4xl mx-auto">
               <ChatWelcome
                 message={message}
@@ -199,41 +203,68 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
                 onSend={handleSendMessage}
                 selectedFile={selectedFile}
                 onFileSelect={setSelectedFile}
+                isLoading={isLoading}
               />
             </div>
           ) : (
             <div className="space-y-12">
-              {turns.map((turn) => (
-                <div
-                  key={turn.id}
-                  className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                  <ChatResponse
-                    userMessage={turn.userMessage}
-                    userFile={turn.userFile}
-                    title={turn.title}
-                    description={turn.description}
-                    trendData={turn.trendData}
-                    indexData={turn.indexData}
-                  />
+              {conversation?.messages.map((msg, index) => {
+                // Only render assistant messages, and pass the preceding user message to them
+                if (msg.role !== 'assistant') return null;
+
+                const prevMsg = conversation.messages[index - 1];
+                const userMessage = prevMsg?.role === 'user' ? prevMsg : undefined;
+
+                return (
+                  <div
+                    key={msg.id}
+                    className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <ChatResponse
+                      userMessage={userMessage?.content}
+                      title={msg.had_error ? "Analysis Error" : "Analysis Result"}
+                      description={msg.content}
+                      plotImage={msg.plot_image}
+                      isVisualization={msg.is_visualization}
+                      hadError={msg.had_error}
+                    />
+                  </div>
+                );
+              })}
+
+              {isAnalyzing && (
+                <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                  <div className="flex flex-col md:flex-row items-start gap-4">
+                    <div className="w-10 h-10 shrink-0 rounded-full bg-primary-foreground flex items-center justify-center text-secondary shadow-lg md:mt-2 border border-white/20">
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-secondary"></div>
+                    </div>
+                    <div className="flex-1 w-full bg-secondary p-8 rounded-3xl shadow-xl border border-white/5">
+                      <h3 className="text-xl font-bold text-primary-foreground mb-3">Thinking...</h3>
+                      <p className="text-primary-foreground/70 animate-pulse">Our AI is processing your data and generating insights.</p>
+                    </div>
+                  </div>
                 </div>
-              ))}
+              )}
+              {/* Scroll anchor */}
+              <div ref={messagesEndRef} className="h-4" />
             </div>
           )}
         </div>
       </div>
 
+
       {/* Footer Input */}
-      {mode === "response" && (
+      {initialMode === "response" && (
         <div className="animate-in fade-in slide-in-from-bottom-2 duration-500 shrink-0">
           <ChatInputBar
             message={message}
             setMessage={setMessage}
             onSend={handleSendMessage}
-            selectedFile={selectedFile}
-            onFileSelect={setSelectedFile}
+            isLoading={isLoading}
           />
+
         </div>
       )}
+
     </div>
   );
 };

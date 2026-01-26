@@ -21,7 +21,12 @@ import Image from "next/image";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ROUTES } from "@/constants/routes";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+
+import { useAuth } from "@/hooks/use-auth";
+import { useAnalysis } from "@/hooks/use-analysis";
+import { Trash2 } from "lucide-react";
+import { ConfirmDeleteDialog } from "@/components/shared/confirm-delete-dialog";
 
 interface ChatThread {
   id: string;
@@ -35,6 +40,7 @@ interface ChatSidebarProps {
   activeThreadId?: string;
   onSelectThread: (id: string) => void;
   onNewChat: () => void;
+  isLoading?: boolean;
 }
 
 const ChatSidebar: React.FC<ChatSidebarProps> = ({
@@ -42,14 +48,30 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
   activeThreadId,
   onSelectThread,
   onNewChat,
+  isLoading,
 }) => {
+  const { user, logout } = useAuth();
+  const { deleteConversation } = useAnalysis();
   const pathname = usePathname();
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   // Filter threads based on search query
   const filteredThreads = threads.filter((thread) =>
     thread.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const handleDelete = (id: string) => {
+    deleteConversation(id, {
+      onSuccess: () => {
+        if (activeThreadId === id) {
+          router.push(ROUTES.CHAT.ROOT);
+        }
+        setDeletingId(null);
+      }
+    });
+  };
 
   // Group threads by date
   const today = new Date().toDateString();
@@ -114,27 +136,41 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
                   <SidebarMenu>
                     {groupThreads.map((thread) => (
                       <SidebarMenuItem key={thread.id}>
-                        <SidebarMenuButton
-                          onClick={() => onSelectThread(thread.id)}
-                          isActive={activeThreadId === thread.id}
-                          className={cn(
-                            "transition-all duration-200 cursor-pointer",
-                            activeThreadId === thread.id
-                              ? "bg-primary/10 text-primary font-medium hover:bg-primary/15"
-                              : "hover:bg-muted/50"
-                          )}>
-                          <MessageSquare
+                        <div className="group relative flex items-center w-full">
+                          <SidebarMenuButton
+                            onClick={() => onSelectThread(thread.id)}
+                            isActive={activeThreadId === thread.id}
                             className={cn(
-                              "w-4 h-4 shrink-0 transition-transform text-primary-foreground",
+                              "transition-all duration-200 cursor-pointer pr-10",
                               activeThreadId === thread.id
-                                ? "scale-110"
-                                : "opacity-70"
-                            )}
-                          />
-                          <span className="truncate text-primary-foreground font-medium">
-                            {thread.title}
-                          </span>
-                        </SidebarMenuButton>
+                                ? "bg-primary/10 text-primary font-medium hover:bg-primary/15"
+                                : "hover:bg-muted/50"
+                            )}>
+                            <MessageSquare
+                              className={cn(
+                                "w-4 h-4 shrink-0 transition-transform text-primary-foreground",
+                                activeThreadId === thread.id
+                                  ? "scale-110"
+                                  : "opacity-70"
+                              )}
+                            />
+                            <span className="truncate text-primary-foreground font-medium">
+                              {thread.title}
+                            </span>
+                          </SidebarMenuButton>
+
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setDeletingId(thread.id);
+                            }}
+                            className="absolute right-1 opacity-0 group-hover:opacity-100 h-7 w-7 text-primary-foreground/40 hover:text-destructive hover:bg-destructive/10 transition-all z-10"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </Button>
+                        </div>
                       </SidebarMenuItem>
                     ))}
                   </SidebarMenu>
@@ -142,7 +178,14 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
               </SidebarGroup>
             )
         )}
+
+        <ConfirmDeleteDialog
+          open={!!deletingId}
+          onOpenChange={(open) => !open && setDeletingId(null)}
+          onConfirm={() => deletingId && handleDelete(deletingId)}
+        />
       </SidebarContent>
+
       <SidebarFooter className="p-4 text-primary-foreground">
         <SidebarSeparator className="mb-4 bg-primary-foreground" />
         <SidebarMenu>
@@ -163,29 +206,27 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
           </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton
-              asChild
-              className="hover:bg-white/10 hover:text-white transition-colors">
-              <Link href={ROUTES.CHAT.LOGOUT}>
-                <LogOut className="w-4 h-4 mr-2" />
-                <span>Log Out</span>
-              </Link>
+              onClick={logout}
+              className="hover:bg-white/10 hover:text-white transition-colors cursor-pointer">
+              <LogOut className="w-4 h-4 mr-2" />
+              <span>Log Out</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
 
-        <div className="mt-6 flex items-center gap-3 px-2 py-2 rounded-lg bg-white/5 border border-white/10">
-          <Avatar className="h-8 w-8 border border-white/20">
-            <AvatarImage src="" />
-            <AvatarFallback className="bg-primary-foreground text-primary text-xs font-bold">
-              ZA
+        <div className="mt-6 flex items-center gap-3 px-2 py-2 rounded-lg bg-white/5 border border-white/10 overflow-hidden">
+          <Avatar className="h-8 w-8 border border-white/20 shrink-0">
+            <AvatarImage src={user?.avatar} />
+            <AvatarFallback className="bg-primary-foreground text-primary text-xs font-bold uppercase">
+              {user?.username?.[0] || 'U'}
             </AvatarFallback>
           </Avatar>
           <div className="flex flex-col min-w-0">
             <span className="text-sm font-semibold truncate text-primary-foreground">
-              Zaid Ahmad
+              {user?.first_name ? `${user.first_name} ${user.last_name || ''}` : user?.username || 'Loading...'}
             </span>
             <span className="text-[10px] text-primary-foreground/60 truncate">
-              Google.johndoe..@gmail.com
+              {user?.email || '...'}
             </span>
           </div>
         </div>

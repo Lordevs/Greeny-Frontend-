@@ -28,6 +28,8 @@ export const getFileIcon = (fileName: string) => {
     case "xls":
     case "xlsx":
     case "csv":
+
+
       return {
         icon: FileSpreadsheet,
         color: "text-emerald-500",
