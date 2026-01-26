@@ -26,7 +26,7 @@ export default function middleware(request: NextRequest) {
     const refreshToken = request.cookies.get('refresh_token')?.value;
     const isAuthenticated = !!accessToken || !!refreshToken;
 
-    console.log(`[Middleware] Path: ${pathname}, Auth: ${isAuthenticated} (AT: ${!!accessToken}, RT: ${!!refreshToken})`);
+    // console.log(`[Middleware] Path: ${pathname}, Auth: ${isAuthenticated} (AT: ${!!accessToken}, RT: ${!!refreshToken})`);
 
     // 3. Logic: Authenticated users can still visit auth pages if they wish (Public access)
     // Removed redirect logic to ROUTES.CHAT.ROOT
@@ -34,7 +34,7 @@ export default function middleware(request: NextRequest) {
 
     // 4. Logic: Redirect unauthenticated users AWAY from Protected pages
     if (isProtectedPage && !isAuthenticated) {
-        console.log(`[Middleware] Redirecting UNAUTH user away from ${pathname} to ${ROUTES.AUTH.LOGIN}`);
+        // console.log(`[Middleware] Redirecting UNAUTH user away from ${pathname} to ${ROUTES.AUTH.LOGIN}`);
         return NextResponse.redirect(new URL(ROUTES.AUTH.LOGIN, request.url));
     }
 
@@ -42,7 +42,7 @@ export default function middleware(request: NextRequest) {
     // 5. Logic: Handle Force Logout (Loop Breaker)
     const forceLogout = request.nextUrl.searchParams.get('force') === 'true';
     if (forceLogout) {
-        console.log('[Middleware] Force logout detected, clearing cookies and staying on login');
+        // console.log('[Middleware] Force logout detected, clearing cookies and staying on login');
         const res = NextResponse.next();
         res.cookies.delete('access_token');
         res.cookies.delete('refresh_token');

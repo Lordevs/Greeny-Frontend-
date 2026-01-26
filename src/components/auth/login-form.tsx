@@ -16,7 +16,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { GoogleLogin } from "@react-oauth/google";
 
 export default function LoginForm() {
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const { user, login, isLoggingIn, googleLogin, isGoogleLoggingIn } = useAuth();
@@ -31,7 +31,7 @@ export default function LoginForm() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    login({ username, password });
+    login({ email, password });
   };
 
 
@@ -64,28 +64,29 @@ export default function LoginForm() {
                   Log in to your account to start analyzing your data.
                 </p>
               </motion.div>
-              {/* Username/Email Input */}
+              {/* Email Input */}
               <motion.div
                 className="space-y-2"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.5, ease: "easeOut" }}>
-                <Label htmlFor="username" className="text-primary-foreground">
-                  Username
+                <Label htmlFor="email" className="text-primary-foreground">
+                  Email
                 </Label>
                 <div className="relative">
-                  <User className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
-                    id="username"
-                    type="text"
-                    placeholder="Enter your username"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
+                    id="email"
+                    type="email"
+                    placeholder="Enter your email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     className="pl-11 h-11 bg-muted/50 border-muted-foreground/10 focus:bg-background transition-all"
                     required
                   />
                 </div>
               </motion.div>
+
 
               {/* Password Input */}
               <motion.div
