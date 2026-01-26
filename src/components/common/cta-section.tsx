@@ -1,4 +1,7 @@
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { ROUTES } from "@/constants/routes";
+
 
 interface CTASectionProps {
   title: string;
@@ -23,10 +26,12 @@ export default function CTASection({
         <Button
           variant="destructive"
           size="lg"
+          asChild
           className="hover:bg-primary/90 text-primary-foreground
           rounded-full px-10 py-6 text-lg font-bold shadow-2xl transition-all hover:scale-105">
-          {buttonText}
+          <Link href={ROUTES.AUTH.SIGNUP}>{buttonText}</Link>
         </Button>
+
       </div>
     </section>
   );

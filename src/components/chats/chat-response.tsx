@@ -1,8 +1,10 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TrendingUp, AlertTriangle, Bot } from "lucide-react";
+import { Button } from "@/components/ui/button";
+
 import {
   ChartContainer,
   ChartTooltip,
@@ -18,14 +20,20 @@ import {
   AreaChart,
 } from "recharts";
 import { getFileIcon } from "@/lib/chat-utils";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import rehypeRaw from "rehype-raw";
+import remarkBreaks from "remark-breaks";
+
 
 interface ChatResponseProps {
   userMessage?: string;
   userFile?: File | null;
   title: string;
   description: string;
-  trendData: any[];
-  indexData: any[];
+  plotImage?: string; // base64
+  isVisualization?: boolean;
+  hadError?: boolean;
 }
 
 const trendChartConfig = {
@@ -47,8 +55,9 @@ export const ChatResponse: React.FC<ChatResponseProps> = ({
   userFile,
   title,
   description,
-  trendData,
-  indexData,
+  plotImage,
+  isVisualization,
+  hadError,
 }) => {
   const fileInfo = userFile ? getFileIcon(userFile.name) : null;
   const FileIconComponent = fileInfo?.icon;
@@ -97,338 +106,305 @@ export const ChatResponse: React.FC<ChatResponseProps> = ({
               <h3 className="text-xl md:text-2xl font-bold text-primary-foreground mb-3 leading-tight">
                 {title}
               </h3>
-              <p className="text-base md:text-xl text-primary-foreground/90 leading-relaxed font-medium wrap-break-word whitespace-pre-wrap max-w-3xl">
-                {description}
-              </p>
+              <div className="markdown-content text-primary-foreground/95 leading-relaxed overflow-x-hidden">
+                <ReactMarkdown
+                  remarkPlugins={[remarkGfm, remarkBreaks]}
+                  rehypePlugins={[rehypeRaw]}
+                  components={{
+                    p: ({ node, ...props }) => <p className="mb-4 last:mb-0 text-base md:text-xl font-medium" {...props} />,
+                    h1: ({ node, ...props }) => <h1 className="text-2xl font-bold mb-4 mt-8 text-primary-foreground first:mt-0" {...props} />,
+                    h2: ({ node, ...props }) => <h2 className="text-xl font-bold mb-3 mt-6 text-primary-foreground border-b border-primary-foreground/10 pb-2 first:mt-0" {...props} />,
+                    h3: ({ node, ...props }) => <h3 className="text-lg font-bold mb-2 mt-4 text-primary-foreground first:mt-0" {...props} />,
+                    ul: ({ node, ...props }) => <ul className="list-disc pl-6 mb-4 space-y-1" {...props} />,
+                    ol: ({ node, ...props }) => <ol className="list-decimal pl-6 mb-4 space-y-1" {...props} />,
+                    li: ({ node, ...props }) => <li className="mb-1 text-base md:text-lg" {...props} />,
+                    blockquote: ({ node, ...props }) => (
+                      <blockquote className="border-l-4 border-primary-foreground/30 pl-4 py-1 my-4 italic bg-white/5 rounded-r-lg" {...props} />
+                    ),
+                    table: ({ node, ...props }) => (
+                      <div className="overflow-x-auto my-6 rounded-xl border border-primary-foreground/10 bg-white/5">
+                        <table className="w-full border-collapse text-sm md:text-base text-left" {...props} />
+                      </div>
+                    ),
+                    thead: ({ node, ...props }) => <thead className="bg-primary-foreground/10" {...props} />,
+                    th: ({ node, ...props }) => <th className="p-3 font-bold border-b border-primary-foreground/10" {...props} />,
+                    td: ({ node, ...props }) => <td className="p-3 border-b border-primary-foreground/5" {...props} />,
+                    code: ({ node, inline, className, children, ...props }: any) => {
+                      const [copied, setCopied] = useState(false);
+                      const [showMore, setShowMore] = useState(false);
+                      const content = String(children).replace(/\n$/, "");
+
+                      const handleCopy = () => {
+                        navigator.clipboard.writeText(content);
+                        setCopied(true);
+                        setTimeout(() => setCopied(false), 2000);
+                      };
+
+                      if (inline) {
+                        return (
+                          <code className="bg-primary-foreground/15 px-1.5 py-0.5 rounded-md font-mono text-[0.85em] font-semibold text-primary-foreground">
+                            {children}
+                          </code>
+                        );
+                      }
+
+
+                      if (content.trim().startsWith("{") && content.trim().endsWith("}")) {
+                        try {
+                          const formatVal = (v: string) => {
+                            if (!v) return "";
+                            return v
+                              .replace(/np\.\w+\((.*?)\)/g, "$1") // Handle numpy types (e.g. np.int64(10)) -> 10
+                              .replace(/Timestamp\(['"]?(.*?)['"]?\)/g, "$1") // Handle pandas timestamps
+                              .replace(/['"()](.*?)['"()]/g, "$1") // Handle general quoted strings
+                              .replace(/[{}()'"[\]]+/g, "") // Clean remaining punctuation
+                              .replace(/^[,\s]+|[,\s]+$/g, "") // Clean leading/trailing commas
+                              .trim();
+                          };
+
+                          const formatKey = (k: string) => {
+                            return formatVal(k).replace(/_/g, " ");
+                          };
+
+                          const mainMetrics: Array<{ k: string; v: string }> = [];
+                          const nestedMetrics: Array<{ k: string; items: Array<{ k: string; v: string }> }> = [];
+
+                          // Helper to extract nested objects properly handling balanced braces and quotes
+                          const extractKeyValuePairs = (str: string) => {
+                            const pairs: Array<{ k: string; v: string }> = [];
+                            let i = 0;
+                            while (i < str.length) {
+                              // 1. Skip whitespace, commas, and closing braces from previous iterations
+                              while (i < str.length && /[\s,}]/.test(str[i])) i++;
+                              if (i >= str.length) break;
+
+                              // 2. Extract Key
+                              let key = "";
+                              let inQuote = false;
+                              let quoteChar = "";
+                              while (i < str.length) {
+                                const char = str[i];
+                                if (!inQuote && (char === "'" || char === '"')) {
+                                  inQuote = true;
+                                  quoteChar = char;
+                                } else if (inQuote && char === quoteChar) {
+                                  inQuote = false;
+                                } else if (!inQuote && char === ":") {
+                                  i++; // Step over colon
+                                  break;
+                                } else {
+                                  key += char;
+                                }
+                                i++;
+                              }
+
+                              // 3. Extract Value (Handling nested structures)
+                              let value = "";
+                              let braceDepth = 0;
+                              let bracketDepth = 0;
+                              inQuote = false;
+                              while (i < str.length) {
+                                const char = str[i];
+                                if ((char === "'" || char === '"') && str[i - 1] !== "\\") {
+                                  inQuote = !inQuote;
+                                }
+
+                                if (!inQuote) {
+                                  if (char === "{") braceDepth++;
+                                  if (char === "}") braceDepth--;
+                                  if (char === "[") bracketDepth++;
+                                  if (char === "]") bracketDepth--;
+
+                                  if (braceDepth === 0 && bracketDepth === -1) {
+                                    // We hit a closing bracket for a list value
+                                    break;
+                                  }
+                                  if (braceDepth === -1) {
+                                    // We hit a closing brace for the parent object
+                                    break;
+                                  }
+                                  if (braceDepth === 0 && bracketDepth === 0 && char === ",") {
+                                    break;
+                                  }
+                                }
+                                value += char;
+                                i++;
+                              }
+                              if (key.trim()) pairs.push({ k: key.trim(), v: value.trim() });
+                            }
+                            return pairs;
+                          };
+
+                          const allPairs = extractKeyValuePairs(content.trim().slice(1, -1));
+
+
+                          allPairs.forEach((pair) => {
+                            const { k: key, v: rawValue } = pair;
+
+                            if (rawValue.startsWith("{")) {
+                              const items: Array<{ k: string; v: string }> = [];
+                              const subPairs = extractKeyValuePairs(rawValue.slice(1, -1));
+
+                              subPairs.forEach((sub) => {
+                                if (sub.v.startsWith("{")) {
+                                  // Two-level nesting (e.g., product_performance)
+                                  const deepPairs = extractKeyValuePairs(sub.v.slice(1, -1));
+                                  deepPairs.forEach((deep) => {
+                                    items.push({
+                                      k: `${formatVal(deep.k)} (${formatVal(sub.k)})`,
+                                      v: formatVal(deep.v),
+                                    });
+                                  });
+                                } else {
+                                  // Single-level nesting
+                                  items.push({ k: formatVal(sub.k), v: formatVal(sub.v) });
+                                }
+                              });
+
+                              if (items.length > 0) {
+                                nestedMetrics.push({ k: formatVal(key), items });
+                              }
+                            } else if (!rawValue.startsWith("[")) {
+                              mainMetrics.push({ k: formatVal(key), v: formatVal(rawValue) });
+                            }
+                          });
+
+                          if (mainMetrics.length > 0 || nestedMetrics.length > 0) {
+                            return (
+                              <div className="my-8 animate-in fade-in slide-in-from-bottom-2 duration-700">
+                                <div className="flex items-center gap-2 mb-4">
+                                  <TrendingUp className="w-4 h-4 text-emerald-400" />
+                                  <span className="text-[10px] font-bold text-white/90 uppercase tracking-[0.2em]">Analytical Foundations</span>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                  {mainMetrics.length > 0 && (
+                                    <Card className="col-span-full bg-white/3 border-white/10 rounded-3xl p-6 md:p-8 backdrop-blur-xl shadow-2xl">
+                                      <h4 className="text-xs font-bold text-white/90 uppercase tracking-widest mb-6">Key Metrics Indicators</h4>
+                                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-y-8 gap-x-4">
+                                        {mainMetrics.map((m, idx) => (
+                                          <div key={idx} className="flex flex-col gap-1.5">
+                                            <span className="text-[10px] text-white/90 uppercase font-bold tracking-tight">
+                                              {formatKey(m.k)}
+                                            </span>
+                                            <span className="text-xl md:text-2xl font-black text-primary-foreground tracking-tighter truncate">
+                                              {m.v}
+                                            </span>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    </Card>
+                                  )}
+
+                                  {nestedMetrics.map((seg, idx) => (
+                                    <div key={idx} className="bg-white/2 border border-white/5 rounded-2xl p-6 hover:bg-white/4 transition-all border-l-2 border-l-emerald-500/30 shadow-lg">
+                                      <h4 className="text-[10px] font-bold text-white/90 mb-5 uppercase tracking-[0.2em]">{formatKey(seg.k)}</h4>
+                                      <div className="space-y-3">
+                                        {seg.items.slice(0, 15).map((p, i) => (
+
+                                          <div key={i} className="flex justify-between items-center group/item">
+                                            <span className="text-sm text-white/90 group-hover/item:text-white/60 transition-colors uppercase font-medium truncate mr-2">
+                                              {formatVal(p.k)}
+                                            </span>
+                                            <span className="text-sm font-bold text-primary-foreground shrink-0">{p.v}</span>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+
+                                <div className="mt-8 flex flex-col items-center gap-4">
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => setShowMore(!showMore)}
+                                    className="text-[10px] font-bold text-white/75 hover:text-white/50 uppercase tracking-[0.3em]"
+                                  >
+                                    {showMore ? "Hide Raw Data Structures" : "View Raw Data Structures"}
+                                  </Button>
+
+                                  {showMore && (
+                                    <pre className="w-full mt-4 p-6 bg-black/60 rounded-3xl font-mono text-xs text-emerald-500/40 border border-white/5 overflow-x-auto shadow-inner animate-in zoom-in-95 duration-300">
+                                      {content}
+                                    </pre>
+                                  )}
+                                </div>
+                              </div>
+                            );
+                          }
+                        } catch (e) {
+                          console.warn("Custom data render failed, falling back to code block", e);
+                        }
+                      }
+
+
+
+                      return (
+                        <div className="my-6 relative bg-black/30 backdrop-blur-md rounded-2xl border border-white/10 overflow-hidden shadow-2xl group">
+                          {/* Header */}
+                          <div className="flex items-center justify-between px-4 py-2 bg-white/5 border-b border-white/5">
+                            <div className="flex gap-1.5">
+                              <div className="w-2 h-2 rounded-full bg-red-400/50" />
+                              <div className="w-2 h-2 rounded-full bg-amber-400/50" />
+                              <div className="w-2 h-2 rounded-full bg-emerald-400/50" />
+                            </div>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={handleCopy}
+                              className="h-6 px-2 text-[10px] font-bold text-white/40 hover:text-white hover:bg-white/10 transition-all uppercase tracking-wider"
+                            >
+                              {copied ? "Copied" : "Copy"}
+                            </Button>
+                          </div>
+
+                          {/* Content */}
+                          <div className="p-4 md:p-6 overflow-x-auto">
+                            <pre className="m-0! p-0! bg-transparent! font-mono text-sm md:text-base leading-relaxed text-emerald-400/90 selection:bg-emerald-500/20">
+                              <code className={className} {...props}>
+                                {children}
+                              </code>
+                            </pre>
+                          </div>
+
+                        </div>
+                      );
+                    },
+
+                  }}
+                >
+                  {description}
+                </ReactMarkdown>
+              </div>
+
             </div>
 
-            {/* Charts Section */}
-            {trendData.length > 0 && (
-              <div className="space-y-6">
+            {/* Visualization Section */}
+            {isVisualization && plotImage && (
+              <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <h4 className="text-xs font-bold text-primary-foreground uppercase tracking-[0.2em]">
-                    Statistical Overview
+                    Visualization
                   </h4>
                   <div className="h-px flex-1 bg-white/10 mx-6 hidden md:block" />
                 </div>
-
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <Card className="shadow-2xl bg-white gap-0 py-0 dark:bg-black/40 border-slate-200 dark:border-white/10 hover:shadow-primary/5 transition-all overflow-hidden">
-                    <CardHeader className="p-6 pb-2">
-                      <CardTitle className="text-lg font-bold text-slate-800 dark:text-white">
-                        Consumer Price Index Trend
-                      </CardTitle>
-                      <p className="text-xs text-slate-500 font-medium italic">
-                        Saudi Arabia: Trade Balance (line) vs. Current Account
-                        Balance (area), 2000-2024
-                      </p>
-                    </CardHeader>
-                    <CardContent className="p-6 pt-4">
-                      <div className="h-64 md:h-72 w-full">
-                        <ChartContainer
-                          config={{
-                            value: { label: "Trade Balance", color: "#3b82f6" },
-                            area: {
-                              label: "Current Account Balance",
-                              color: "#fbbf24",
-                            },
-                          }}
-                          className="h-full w-full">
-                          <AreaChart
-                            data={trendData}
-                            margin={{
-                              top: 10,
-                              right: 10,
-                              left: 20,
-                              bottom: 20,
-                            }}>
-                            <defs>
-                              <linearGradient
-                                id="areaGradient"
-                                x1="0"
-                                y1="0"
-                                x2="0"
-                                y2="1">
-                                <stop
-                                  offset="5%"
-                                  stopColor="#fbbf24"
-                                  stopOpacity={0.6}
-                                />
-                                <stop
-                                  offset="95%"
-                                  stopColor="#fbbf24"
-                                  stopOpacity={0.1}
-                                />
-                              </linearGradient>
-                            </defs>
-                            <CartesianGrid
-                              strokeDasharray="3 3"
-                              className="stroke-slate-200 dark:stroke-slate-800"
-                              vertical={true}
-                            />
-                            <XAxis
-                              dataKey="year"
-                              label={{
-                                value: "Year",
-                                position: "insideBottom",
-                                offset: -10,
-                                className:
-                                  "fill-slate-500 text-[10px] font-bold",
-                              }}
-                              tick={{
-                                fontSize: 10,
-                                fill: "currentColor",
-                                opacity: 0.6,
-                              }}
-                              axisLine={{ stroke: "#e2e8f0" }}
-                              tickLine={false}
-                            />
-                            <YAxis
-                              label={{
-                                value: "Trade Balance (USD Billion)",
-                                angle: -90,
-                                position: "insideLeft",
-                                offset: 10,
-                                className:
-                                  "fill-slate-500 text-[10px] font-bold",
-                              }}
-                              tick={{
-                                fontSize: 10,
-                                fill: "currentColor",
-                                opacity: 0.6,
-                              }}
-                              axisLine={{ stroke: "#e2e8f0" }}
-                              tickLine={false}
-                            />
-                            <ChartTooltip
-                              content={
-                                <ChartTooltipContent className="bg-white shadow-xl border-slate-200" />
-                              }
-                            />
-                            <Area
-                              type="monotone"
-                              dataKey="value" // Using trendData value as area for visual match
-                              stroke="none"
-                              fill="url(#areaGradient)"
-                            />
-                            <Line
-                              type="monotone"
-                              dataKey="value"
-                              stroke="#3b82f6"
-                              strokeWidth={2}
-                              dot={{
-                                fill: "#3b82f6",
-                                r: 4,
-                                strokeWidth: 1,
-                                stroke: "#fff",
-                              }}
-                              activeDot={{ r: 6 }}
-                            />
-                          </AreaChart>
-                        </ChartContainer>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  <Card className="shadow-2xl gap-0 py-0 bg-white dark:bg-black/40 border-slate-200 dark:border-white/10 hover:shadow-primary/5 transition-all overflow-hidden">
-                    <CardHeader className="p-6 pb-2">
-                      <CardTitle className="text-lg font-bold text-slate-800 dark:text-white">
-                        CPI Index
-                      </CardTitle>
-                      <p className="text-xs text-slate-500 font-medium italic">
-                        Saudi Arabia CPI Index (2018=100) by Year
-                      </p>
-                    </CardHeader>
-                    <CardContent className="p-6 pt-4">
-                      <div className="h-64 md:h-72 w-full">
-                        <ChartContainer
-                          config={{
-                            value: { label: "CPI Index", color: "#3b82f6" },
-                          }}
-                          className="h-full w-full">
-                          <LineChart
-                            data={indexData}
-                            margin={{
-                              top: 10,
-                              right: 10,
-                              left: 20,
-                              bottom: 20,
-                            }}>
-                            <CartesianGrid
-                              strokeDasharray="3 3"
-                              className="stroke-slate-200 dark:stroke-slate-800"
-                              vertical={true}
-                            />
-                            <XAxis
-                              dataKey="year"
-                              label={{
-                                value: "Year",
-                                position: "insideBottom",
-                                offset: -10,
-                                className:
-                                  "fill-slate-500 text-[10px] font-bold",
-                              }}
-                              tick={{
-                                fontSize: 10,
-                                fill: "currentColor",
-                                opacity: 0.6,
-                              }}
-                              axisLine={{ stroke: "#e2e8f0" }}
-                              tickLine={false}
-                            />
-                            <YAxis
-                              label={{
-                                value: "CPI Index (2018=100)",
-                                angle: -90,
-                                position: "insideLeft",
-                                offset: 10,
-                                className:
-                                  "fill-slate-500 text-[10px] font-bold",
-                              }}
-                              tick={{
-                                fontSize: 10,
-                                fill: "currentColor",
-                                opacity: 0.6,
-                              }}
-                              axisLine={{ stroke: "#e2e8f0" }}
-                              tickLine={false}
-                            />
-                            <ChartTooltip
-                              content={
-                                <ChartTooltipContent className="bg-white shadow-xl border-slate-200" />
-                              }
-                            />
-                            <Line
-                              type="monotone"
-                              dataKey="value"
-                              stroke="#3b82f6"
-                              strokeWidth={2}
-                              dot={{
-                                fill: "#3b82f6",
-                                r: 4,
-                                strokeWidth: 1,
-                                stroke: "#fff",
-                              }}
-                              activeDot={{ r: 6 }}
-                            />
-                          </LineChart>
-                        </ChartContainer>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
+                <Card className="overflow-hidden border-none shadow-2xl bg-white/5 backdrop-blur-sm">
+                  <img
+                    src={`data:image/png;base64,${plotImage}`}
+                    alt="Data Visualization"
+                    className="w-full h-auto rounded-xl"
+                  />
+                </Card>
               </div>
             )}
 
-            {/* Key Findings Section */}
-            {trendData.length > 0 && (
-              <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <h4 className="text-xs font-bold text-primary-foreground uppercase tracking-[0.2em]">
-                    Detailed Insights
-                  </h4>
-                  <div className="h-px flex-1 bg-white/10 mx-6 hidden md:block" />
-                </div>
-
-                <div className="grid grid-cols-1 gap-6">
-                  <Card className="border-white/5 gap-0 py-4 bg-primary-foreground backdrop-blur-sm overflow-hidden group/insight transition-colors">
-                    <div className="h-1 bg-primary w-full" />
-                    <CardContent className="p-6 md:p-8 text-left">
-                      <div className="flex items-center gap-3 mb-6">
-                        <div className="p-2 rounded-lg bg-primary/20 text-primary">
-                          <TrendingUp className="w-5 h-5" />
-                        </div>
-                        <h4 className="font-bold uppercase tracking-tight text-sm">
-                          Key Performance Indicators
-                        </h4>
-                      </div>
-                      <ul className="space-y-2 md:space-y-3 text-xs md:text-sm">
-                        <li className="flex gap-2 md:gap-3">
-                          <span className="text-primary font-bold mt-0.5">
-                            •
-                          </span>
-                          <span className="text-muted-foreground focus:text-foreground transition-colors">
-                            <strong className="text-foreground">
-                              2008 Crisis:
-                            </strong>{" "}
-                            Inflation peaked at 11.1% globally.
-                          </span>
-                        </li>
-                        <li className="flex gap-2 md:gap-3">
-                          <span className="text-primary font-bold mt-0.5">
-                            •
-                          </span>
-                          <span className="text-muted-foreground">
-                            <strong className="text-foreground">
-                              Oil Correlation:
-                            </strong>{" "}
-                            Closely follows global oil movements.
-                          </span>
-                        </li>
-                        <li className="flex gap-2 md:gap-3">
-                          <span className="text-primary font-bold mt-0.5">
-                            •
-                          </span>
-                          <span className="text-muted-foreground">
-                            <strong className="text-foreground">
-                              Vision 2030:
-                            </strong>{" "}
-                            Economic stability improved significantly.
-                          </span>
-                        </li>
-                      </ul>
-                    </CardContent>
-                  </Card>
-
-                  <Card className="border-border/50 gap-0 py-4 bg-primary-foreground shadow-sm overflow-hidden">
-                    <div className="h-1 bg-secondary w-full" />
-                    <CardContent className="pt-4 md:pt-5 p-4 md:p-6">
-                      <div className="flex items-center gap-2 mb-3 md:mb-4">
-                        <AlertTriangle className="w-4 h-4 md:w-5 md:h-5 text-secondary" />
-                        <h4 className="font-bold text-foreground uppercase tracking-tight text-xs md:text-sm">
-                          Notable Periods
-                        </h4>
-                      </div>
-                      <div className="space-y-4">
-                        <div className="flex justify-between items-start gap-4">
-                          <div className="min-w-0">
-                            <p className="font-bold text-[10px] md:text-xs text-foreground uppercase tracking-wider mb-1">
-                              2008-2009
-                            </p>
-                            <p className="text-[10px] md:text-xs text-muted-foreground line-clamp-2 leading-relaxed">
-                              Financial crisis volatility
-                            </p>
-                          </div>
-                          <div className="min-w-0 text-right">
-                            <p className="font-bold text-[10px] md:text-xs text-foreground uppercase tracking-wider mb-1">
-                              2016-17
-                            </p>
-                            <p className="text-[10px] md:text-xs text-muted-foreground line-clamp-2 leading-relaxed">
-                              VAT introduction effects
-                            </p>
-                          </div>
-                        </div>
-                        <div className="flex justify-between items-start gap-4">
-                          <div className="min-w-0">
-                            <p className="font-bold text-[10px] md:text-xs text-foreground uppercase tracking-wider mb-1">
-                              2020
-                            </p>
-                            <p className="text-[10px] md:text-xs text-muted-foreground line-clamp-2 leading-relaxed">
-                              COVID-19 oil volatility
-                            </p>
-                          </div>
-                          <div className="min-w-0 text-right">
-                            <p className="font-bold text-[10px] md:text-xs text-foreground uppercase tracking-wider mb-1">
-                              2022-24
-                            </p>
-                            <p className="text-[10px] md:text-xs text-muted-foreground line-clamp-2 leading-relaxed">
-                              Stable post-pandemic recovery
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+            {hadError && (
+              <div className="p-4 bg-destructive/10 border border-destructive/20 rounded-xl flex items-start gap-3 text-destructive">
+                <AlertTriangle className="w-5 h-5 shrink-0" />
+                <div>
+                  <h4 className="font-bold text-sm">Error during analysis</h4>
+                  <p className="text-xs opacity-90">The agent encountered an issue while processing your request. See details above.</p>
                 </div>
               </div>
             )}

@@ -11,6 +11,8 @@ import {
 import { FolderUp, Upload, FileText, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
+
 
 interface FileUploadDialogProps {
   open: boolean;
@@ -35,21 +37,34 @@ export const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
     setIsDragging(false);
   };
 
+  const isValidFile = (file: File) => {
+    const extension = file.name.split(".").pop()?.toLowerCase();
+    return extension === "csv" || extension === "pdf";
+  };
+
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
     const file = e.dataTransfer.files?.[0];
     if (file) {
-      onFileSelect(file);
-      onOpenChange(false);
+      if (isValidFile(file)) {
+        onFileSelect(file);
+        onOpenChange(false);
+      } else {
+        toast.error("Only CSV and PDF files are allowed");
+      }
     }
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      onFileSelect(file);
-      onOpenChange(false);
+      if (isValidFile(file)) {
+        onFileSelect(file);
+        onOpenChange(false);
+      } else {
+        toast.error("Only CSV and PDF files are allowed");
+      }
     }
   };
 
@@ -63,10 +78,10 @@ export const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
             </div>
             <div className="pt-1">
               <DialogTitle className="text-xl font-bold text-slate-900 leading-none mb-1.5">
-                Upload Your Documents
+                Upload Your Data
               </DialogTitle>
               <DialogDescription className="text-slate-500 text-sm">
-                Start create and manage your property by few clicks!
+                Strictly CSV and PDF files are supported for analysis.
               </DialogDescription>
             </div>
           </div>
@@ -87,7 +102,7 @@ export const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
               ref={fileInputRef}
               className="hidden"
               onChange={handleFileChange}
-              accept=".txt,.pdf,.doc,.docx,.csv,.xlsx"
+              accept=".csv,.pdf"
             />
 
             <div className="relative">
@@ -104,12 +119,14 @@ export const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
                 Drag and drop here or click to upload
               </p>
               <p className="text-slate-400 text-sm font-medium">
-                File types allowed: TXT, PDF, DOCX, CSV, XLSX
+                File types allowed: CSV, PDF
               </p>
             </div>
           </div>
         </div>
       </DialogContent>
     </Dialog>
+
+
   );
 };

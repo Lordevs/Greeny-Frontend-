@@ -1,5 +1,8 @@
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
+import Link from "next/link";
+import { ROUTES } from "@/constants/routes";
+
 
 const integrations = [
   { icon: "/logos/common/google.svg", name: "Google" },
@@ -36,10 +39,12 @@ export default function HeroSection({
         <Button
           variant="destructive"
           size="lg"
+          asChild
           className="animate-fade-in rounded-full w-60 h-12 text-lg font-bold"
           style={{ animationDelay: "0.2s" }}>
-          {buttonText}
+          <Link href={ROUTES.AUTH.SIGNUP}>{buttonText}</Link>
         </Button>
+
 
         {/* Integration Icons */}
         {showIntegrations && (

@@ -4,7 +4,7 @@ import { MessageSquare, Users } from "lucide-react";
 export const NAV_ITEMS = [
   {
     name: "Chat",
-    href: ROUTES.APP.CHAT,
+    href: ROUTES.CHAT.ROOT,
     icon: MessageSquare,
   },
   {
