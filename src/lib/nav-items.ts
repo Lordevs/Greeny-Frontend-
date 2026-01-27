@@ -1,5 +1,5 @@
 import { ROUTES } from "@/constants/routes";
-import { MessageSquare, Users } from "lucide-react";
+import { DollarSign, MessageSquare, Users } from "lucide-react";
 
 export const NAV_ITEMS = [
   {
@@ -8,8 +8,14 @@ export const NAV_ITEMS = [
     icon: MessageSquare,
   },
   {
+    name: "Pricing",
+    href: ROUTES.APP.PRICING,
+    icon: DollarSign,
+  },
+  {
     name: "Teams",
     href: ROUTES.APP.TEAMS,
     icon: Users,
   },
+
 ];

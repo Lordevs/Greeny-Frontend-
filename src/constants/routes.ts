@@ -9,6 +9,7 @@ export const ROUTES = {
     HOME: "/",
     CHAT: "/chat",
     TEAMS: "/teams",
+    PRICING: "/pricing",
   },
   CHAT: {
     ROOT: "/chats",
