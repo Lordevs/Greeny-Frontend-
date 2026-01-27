@@ -12,7 +12,7 @@ interface ChatHeaderProps {
     isDeleting?: boolean;
 }
 
-export const ChatHeader: React.FC<ChatHeaderProps> = ({
+export const ChatHeader: React.FC<ChatHeaderProps> = React.memo(({
     title = "AI Analysis Hub",
     onDelete,
     isDeleting = false,
@@ -62,4 +62,6 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
             </div>
         </div>
     );
-};
+});
+
+ChatHeader.displayName = "ChatHeader";

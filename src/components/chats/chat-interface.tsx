@@ -104,7 +104,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
 
 
 
-  const handleSendMessage = async () => {
+  const handleSendMessage = React.useCallback(async () => {
     const currentMessage = message.trim();
     if ((!currentMessage && !selectedFile) || isLoading) return;
 
@@ -151,7 +151,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
       setSelectedFile(null);
       analyze(currentMessage);
     }
-  };
+  }, [message, selectedFile, isLoading, initialMode, chatId, createConversation, uploadFile, router, analyze]);
 
 
 
@@ -218,7 +218,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
                 return (
                   <div
                     key={msg.id}
-                    className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                  >
                     <ChatResponse
                       userMessage={userMessage?.content}
                       title={msg.had_error ? "Analysis Error" : "Analysis Result"}

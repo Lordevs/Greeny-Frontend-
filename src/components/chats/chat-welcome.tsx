@@ -135,7 +135,7 @@ export const ChatWelcome: React.FC<ChatWelcomeProps> = ({
               </div>
             </div>
             {!selectedFile && !isLoading && (
-              <p className="text-center text-xs text-primary-foreground/40 mt-2 font-medium animate-pulse">
+              <p className="text-center text-xs text-primary-foreground mt-2 font-medium">
                 Kindly upload a CSV or PDF file to begin your analysis.
               </p>
             )}
