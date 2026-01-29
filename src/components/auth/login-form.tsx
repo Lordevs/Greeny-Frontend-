@@ -25,10 +25,10 @@ export default function LoginForm() {
   const router = useRouter();
 
   useEffect(() => {
-    if (user) {
-      router.push(ROUTES.CHAT.ROOT);
+    if (user && typeof window !== "undefined") {
+      window.location.href = ROUTES.CHAT.ROOT;
     }
-  }, [user, router]);
+  }, [user]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
