@@ -2,14 +2,13 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "../ui/card";
-import { Eye, EyeOff, Mail, Lock, User } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock } from "lucide-react";
 import { ROUTES } from "@/constants/routes";
 import Image from "next/image";
 
@@ -22,7 +21,6 @@ export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const { user, login, isLoggingIn, googleLogin, isGoogleLoggingIn } =
     useAuth();
-  const router = useRouter();
 
   useEffect(() => {
     if (user && typeof window !== "undefined") {
