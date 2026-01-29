@@ -11,6 +11,7 @@ import { motion } from "framer-motion";
 import { Card, CardContent } from "../ui/card";
 import { Eye, EyeOff, Mail, Lock, User } from "lucide-react";
 import { ROUTES } from "@/constants/routes";
+import Image from "next/image";
 
 import { useAuth } from "@/hooks/use-auth";
 import { GoogleLogin } from "@react-oauth/google";
@@ -19,7 +20,8 @@ export default function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const { user, login, isLoggingIn, googleLogin, isGoogleLoggingIn } = useAuth();
+  const { user, login, isLoggingIn, googleLogin, isGoogleLoggingIn } =
+    useAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -28,13 +30,10 @@ export default function LoginForm() {
     }
   }, [user, router]);
 
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     login({ email, password });
   };
-
-
 
   return (
     <motion.div
@@ -87,7 +86,6 @@ export default function LoginForm() {
                 </div>
               </motion.div>
 
-
               {/* Password Input */}
               <motion.div
                 className="space-y-2"
@@ -138,7 +136,11 @@ export default function LoginForm() {
                 transition={{ duration: 0.5, delay: 0.8, ease: "easeOut" }}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}>
-                <Button variant="destructive" className="w-full" type="submit" disabled={isLoggingIn}>
+                <Button
+                  variant="destructive"
+                  className="w-full"
+                  type="submit"
+                  disabled={isLoggingIn}>
                   {isLoggingIn ? "Logging in..." : "Login"}
                 </Button>
               </motion.div>
@@ -148,8 +150,7 @@ export default function LoginForm() {
               className="relative my-2"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ duration: 0.5, delay: 0.8, ease: "easeOut" }}
-            >
+              transition={{ duration: 0.5, delay: 0.8, ease: "easeOut" }}>
               <div className="absolute inset-0 flex items-center">
                 <div className="border-primary-foreground w-full border-t"></div>
               </div>
@@ -163,24 +164,46 @@ export default function LoginForm() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.9, ease: "easeOut" }}
-              className="flex justify-center w-full"
-            >
-              <div className="w-full [&_iframe]:w-full! [&_iframe]:min-w-full!">
-                <GoogleLogin
-                  onSuccess={(credentialResponse) => {
-                    if (credentialResponse.credential) {
-                      googleLogin(credentialResponse.credential);
-                    }
-                  }}
-                  onError={() => {
-                    toast.error("Google Login failed");
-                  }}
-                  useOneTap
-                  theme="filled_black"
-                  shape="pill"
-                  width="100%"
-                />
-              </div>
+              className="flex justify-center w-full">
+              {process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ? (
+                <div className="w-full [&_iframe]:w-full! [&_iframe]:min-w-full!">
+                  <GoogleLogin
+                    onSuccess={(credentialResponse) => {
+                      if (credentialResponse.credential) {
+                        googleLogin(credentialResponse.credential);
+                      }
+                    }}
+                    onError={() => {
+                      toast.error("Google Login failed");
+                    }}
+                    theme="filled_black"
+                    shape="pill"
+                    width="100%"
+                  />
+                </div>
+              ) : (
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full h-10 rounded-full bg-[#131314] hover:bg-[#202124] text-white border-none flex items-center justify-center gap-3 transition-colors px-4"
+                  onClick={() =>
+                    toast.error(
+                      "Google Login is not configured. Please add NEXT_PUBLIC_GOOGLE_CLIENT_ID to your environment.",
+                    )
+                  }>
+                  <div className="bg-white p-1 rounded-full flex items-center justify-center w-5 h-5">
+                    <Image
+                      src="/logos/common/google.svg"
+                      alt="Google"
+                      width={14}
+                      height={14}
+                    />
+                  </div>
+                  <span className="text-sm font-medium">
+                    Sign in with Google
+                  </span>
+                </Button>
+              )}
             </motion.div>
 
             {/* Footer Links */}

@@ -11,6 +11,7 @@ import { motion } from "framer-motion";
 import { Eye, EyeOff, Mail, Lock, User } from "lucide-react";
 import { Card, CardContent } from "../ui/card";
 import { ROUTES } from "@/constants/routes";
+import Image from "next/image";
 
 import { useAuth } from "@/hooks/use-auth";
 import { GoogleLogin } from "@react-oauth/google";
@@ -33,7 +34,6 @@ export default function SignupForm() {
     }
   }, [user, router]);
 
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (password !== passwordConfirm) {
@@ -46,12 +46,11 @@ export default function SignupForm() {
       password,
       password_confirm: passwordConfirm,
       first_name: firstName,
-      last_name: lastName
+      last_name: lastName,
     });
   };
 
   return (
-
     <motion.div
       className="w-full"
       initial={{ opacity: 0, x: 50 }}
@@ -87,7 +86,9 @@ export default function SignupForm() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.5, ease: "easeOut" }}>
-                  <Label htmlFor="firstName" className="text-primary-foreground">
+                  <Label
+                    htmlFor="firstName"
+                    className="text-primary-foreground">
                     First Name
                   </Label>
                   <Input
@@ -201,7 +202,9 @@ export default function SignupForm() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.7, ease: "easeOut" }}>
-                <Label htmlFor="passwordConfirm" className="text-primary-foreground">
+                <Label
+                  htmlFor="passwordConfirm"
+                  className="text-primary-foreground">
                   Confirm Password
                 </Label>
                 <div className="relative">
@@ -254,26 +257,47 @@ export default function SignupForm() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 1.0, ease: "easeOut" }}
-              className="flex justify-center w-full"
-            >
-              <div className="w-full [&_iframe]:w-full! [&_iframe]:min-w-full!">
-                <GoogleLogin
-                  onSuccess={(credentialResponse) => {
-                    if (credentialResponse.credential) {
-                      googleLogin(credentialResponse.credential);
-                    }
-                  }}
-                  onError={() => {
-                    toast.error("Google Signup failed");
-                  }}
-                  useOneTap
-                  theme="filled_black"
-                  shape="pill"
-                  width="100%"
-                />
-              </div>
+              className="flex justify-center w-full">
+              {process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ? (
+                <div className="w-full [&_iframe]:w-full! [&_iframe]:min-w-full!">
+                  <GoogleLogin
+                    onSuccess={(credentialResponse) => {
+                      if (credentialResponse.credential) {
+                        googleLogin(credentialResponse.credential);
+                      }
+                    }}
+                    onError={() => {
+                      toast.error("Google Signup failed");
+                    }}
+                    theme="filled_black"
+                    shape="pill"
+                    width="100%"
+                  />
+                </div>
+              ) : (
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full h-10 rounded-full bg-[#131314] hover:bg-[#202124] text-white border-none flex items-center justify-center gap-3 transition-colors px-4"
+                  onClick={() =>
+                    toast.error(
+                      "Google Signup is not configured. Please add NEXT_PUBLIC_GOOGLE_CLIENT_ID to your environment.",
+                    )
+                  }>
+                  <div className="bg-white p-1 rounded-full flex items-center justify-center w-5 h-5">
+                    <Image
+                      src="/logos/common/google.svg"
+                      alt="Google"
+                      width={14}
+                      height={14}
+                    />
+                  </div>
+                  <span className="text-sm font-medium">
+                    Sign up with Google
+                  </span>
+                </Button>
+              )}
             </motion.div>
-
 
             <motion.p
               className="text-center text-sm text-destructive pt-2"
